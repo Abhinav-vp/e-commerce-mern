@@ -1,0 +1,75 @@
+.item{
+    width: 260px;
+    padding: 15px;
+    border-radius: 12px;
+    background: #ffffff;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+/* CARD HOVER */
+
+.item:hover{
+    transform: translateY(-10px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+
+/* IMAGE */
+
+.item img{
+    width: 100%;
+    border-radius: 10px;
+    transition: transform 0.4s ease;
+}
+
+/* IMAGE HOVER */
+
+.item:hover img{
+    transform: scale(1.08);
+}
+
+/* PRODUCT NAME */
+
+.item p{
+    margin: 10px 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+}
+
+/* PRICE CONTAINER */
+
+.item-prices{
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+/* NEW PRICE */
+
+.item-price-new{
+    font-size: 18px;
+    font-weight: 700;
+    color: #ff4141;
+    transition: transform 0.3s ease;
+}
+
+/* OLD PRICE */
+
+.item-price-old{
+    font-size: 16px;
+    font-weight: 500;
+    color: #8c8c8c;
+    text-decoration: line-through;
+    transition: color 0.3s ease;
+}
+
+/* PRICE HOVER EFFECT */
+
+.item:hover .item-price-new{
+    transform: scale(1.1);
+}
+
+.item:hover .item-price-old{
+    color: #555;
+}

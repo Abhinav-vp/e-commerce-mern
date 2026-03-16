@@ -1,0 +1,106 @@
+/* OFFERS SECTION */
+
+.offers{
+    width: 85%;
+    height: 60vh;
+    margin: auto;
+    padding: 0 120px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(180deg,#fde1ff 0%,#e1ffea22 60%);
+    border-radius: 20px;
+}
+
+/* LEFT SIDE */
+
+.offers-left{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.offers-left h1{
+    color: #171717;
+    font-size: 60px;
+    font-weight: 600;
+}
+
+.offers-left p{
+    color: #555;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+/* BUTTON */
+
+.offers-left button{
+    width: 200px;
+    height: 55px;
+    border-radius: 35px;
+    background: #ff4141;
+    border: none;
+    color: white;
+    font-size: 18px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.3s ease;
+}
+
+/* BUTTON HOVER */
+
+.offers-left button:hover{
+    background: #ff1e1e;
+    transform: scale(1.05);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+/* RIGHT SIDE */
+
+.offers-right{
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* IMAGE */
+
+.offers-right img{
+    width: 350px;
+    transition: transform 0.4s ease;
+}
+
+/* IMAGE HOVER */
+
+.offers-right img:hover{
+    transform: scale(1.08) rotate(-3deg);
+}
+
+/* RESPONSIVE */
+
+@media(max-width:1000px){
+
+.offers{
+    flex-direction: column;
+    height: auto;
+    padding: 50px;
+    text-align: center;
+    gap: 30px;
+}
+
+.offers-left{
+    align-items: center;
+}
+
+.offers-left h1{
+    font-size: 40px;
+}
+
+.offers-right img{
+    width: 280px;
+}
+
+}
