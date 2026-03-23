@@ -1,9 +1,10 @@
 /* SHOP CATEGORY PAGE */
 
 .shop-category{
-    width: 90%;
+    width: min(90%, 1200px);
     margin: auto;
     padding: 40px 0;
+    box-sizing: border-box;
 }
 
 /* BANNER */
@@ -62,7 +63,9 @@
 .shopcategory-products{
     display: grid;
     grid-template-columns: repeat(4,1fr);
-    gap: 35px;
+    gap: 24px;
+    width: 100%;
+    align-items: start;
 }
 
 /* LOAD MORE BUTTON */
