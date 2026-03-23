@@ -5,6 +5,7 @@
     background: #ffffff;
     transition: all 0.3s ease;
     cursor: pointer;
+    box-sizing: border-box;
 }
 
 /* CARD HOVER */
@@ -20,6 +21,8 @@
     width: 100%;
     border-radius: 10px;
     transition: transform 0.4s ease;
+    height: 200px;
+    object-fit: cover;
 }
 
 /* IMAGE HOVER */
@@ -35,6 +38,9 @@
     font-size: 16px;
     font-weight: 500;
     color: #333;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* PRICE CONTAINER */
@@ -72,4 +78,59 @@
 
 .item:hover .item-price-old{
     color: #555;
+}
+
+/* RESPONSIVE DESIGN */
+
+@media (max-width: 768px) {
+    .item {
+        width: 100%;
+        max-width: 280px;
+        padding: 12px;
+        margin: 0 auto;
+    }
+
+    .item img {
+        height: 180px;
+    }
+
+    .item p {
+        font-size: 14px;
+    }
+
+    .item-price-new {
+        font-size: 16px;
+    }
+
+    .item-price-old {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .item {
+        max-width: 100%;
+        padding: 10px;
+    }
+
+    .item img {
+        height: 160px;
+    }
+
+    .item p {
+        font-size: 13px;
+        margin: 8px 0;
+    }
+
+    .item-price-new {
+        font-size: 15px;
+    }
+
+    .item-price-old {
+        font-size: 13px;
+    }
+
+    .item-prices {
+        gap: 10px;
+    }
 }

@@ -6,6 +6,7 @@
     align-items: center;
     gap: 10px;
     padding: 60px 80px;
+    box-sizing: border-box;
 }
 
 /* TITLE */
@@ -33,6 +34,8 @@
     display: grid;
     grid-template-columns: repeat(4,1fr);
     gap: 40px;
+    width: 100%;
+    justify-items: center;
 }
 
 /* RESPONSIVE DESIGN */
@@ -41,6 +44,7 @@
 
 .popular-item{
     grid-template-columns: repeat(3,1fr);
+    gap: 30px;
 }
 
 }
@@ -48,7 +52,7 @@
 @media(max-width:900px){
 
 .popular{
-    padding: 40px;
+    padding: 40px 20px;
 }
 
 .popular-item{
@@ -66,10 +70,15 @@
 
 .popular-item{
     grid-template-columns: 1fr;
+    gap: 20px;
 }
 
 .popular h1{
     font-size: 26px;
+}
+
+.popular{
+    padding: 30px 15px;
 }
 
 }

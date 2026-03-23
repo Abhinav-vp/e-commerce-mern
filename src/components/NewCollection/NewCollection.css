@@ -6,6 +6,7 @@
     align-items: center;
     padding: 80px 60px;
     gap: 10px;
+    box-sizing: border-box;
 }
 
 /* TITLE */
@@ -33,6 +34,8 @@
     display: grid;
     grid-template-columns: repeat(4,1fr);
     gap: 40px;
+    width: 100%;
+    justify-items: center;
 }
 
 /* RESPONSIVE DESIGN */
@@ -41,6 +44,7 @@
 
 .collections{
     grid-template-columns: repeat(3,1fr);
+    gap: 30px;
 }
 
 }
@@ -66,10 +70,15 @@
 
 .collections{
     grid-template-columns: 1fr;
+    gap: 20px;
 }
 
 .new-collections h1{
     font-size: 26px;
+}
+
+.new-collections{
+    padding: 40px 15px;
 }
 
 }
