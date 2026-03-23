@@ -1,170 +1,94 @@
-.item{
-    width: 260px;
-    padding: 15px;
-    border-radius: 12px;
-    background: #ffffff;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    box-sizing: border-box;
-    border: 1px solid #f0f0f0;
-    overflow: hidden;
+.item {
+  width: 100%;
+  max-width: 250px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: 0.3s ease;
+  cursor: pointer;
 }
 
-/* CARD HOVER */
-
-.item:hover{
-    transform: translateY(-10px);
-    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+.item:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
 }
 
-/* IMAGE */
-
-.item img{
-    width: 100%;
-    border-radius: 10px;
-    transition: transform 0.4s ease;
-    height: 200px;
-    object-fit: cover;
-    display: block;
-    background-color: #f5f5f5;
-    border: 1px solid #e0e0e0;
+.item img {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+  display: block;
 }
 
-/* IMAGE LOADING/ERROR FALLBACK */
-
-.item img[src=""],
-.item img:not([src]) {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: loading 1.5s infinite;
+.item p {
+  font-size: 16px;
+  font-weight: 500;
+  padding: 10px;
+  color: #333;
 }
 
-@keyframes loading {
-    0% {
-        background-position: 200% 0;
-    }
-    100% {
-        background-position: -200% 0;
-    }
+.item-prices {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 10px 12px;
 }
 
-/* IMAGE HOVER */
-
-.item:hover img{
-    transform: scale(1.08);
-    border-color: #ff4141;
+.item-price-new {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ff4141;
 }
 
-/* PRODUCT NAME */
-
-.item p{
-    margin: 10px 0;
-    font-size: 16px;
-    font-weight: 500;
-    color: #333;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+.item-price-old {
+  font-size: 14px;
+  color: #888;
+  text-decoration: line-through;
 }
 
-/* PRICE CONTAINER */
 
-.item-prices{
-    display: flex;
-    gap: 15px;
-    align-items: center;
+
+/* 🔥 Responsive Design */
+
+@media (max-width: 1024px) {
+  .item {
+    max-width: 220px;
+  }
+
+  .item img {
+    height: 250px;
+  }
 }
-
-/* NEW PRICE */
-
-.item-price-new{
-    font-size: 18px;
-    font-weight: 700;
-    color: #ff4141;
-    transition: transform 0.3s ease;
-}
-
-/* OLD PRICE */
-
-.item-price-old{
-    font-size: 16px;
-    font-weight: 500;
-    color: #8c8c8c;
-    text-decoration: line-through;
-    transition: color 0.3s ease;
-}
-
-/* PRICE HOVER EFFECT */
-
-.item:hover .item-price-new{
-    transform: scale(1.1);
-}
-
-.item:hover .item-price-old{
-    color: #555;
-}
-
-/* RESPONSIVE DESIGN */
 
 @media (max-width: 768px) {
-    .item {
-        width: 100%;
-        max-width: 280px;
-        padding: 12px;
-        margin: 0 auto;
-        border-radius: 8px;
-    }
+  .item {
+    max-width: 180px;
+  }
 
-    .item img {
-        height: 180px;
-        width: 100%;
-        object-fit: cover;
-        border-radius: 6px;
-        max-width: 100%;
-    }
+  .item img {
+    height: 220px;
+  }
 
-    .item p {
-        font-size: 14px;
-    }
+  .item p {
+    font-size: 14px;
+  }
 
-    .item-price-new {
-        font-size: 16px;
-    }
-
-    .item-price-old {
-        font-size: 14px;
-    }
+  .item-price-new {
+    font-size: 16px;
+  }
 }
 
 @media (max-width: 480px) {
-    .item {
-        max-width: 100%;
-        padding: 10px;
-        border-radius: 6px;
-    }
+  .item {
+    max-width: 100%;
+  }
 
-    .item img {
-        height: 160px;
-        width: 100%;
-        object-fit: cover;
-        border-radius: 4px;
-        max-width: 100%;
-    }
+  .item img {
+    height: 200px;
+  }
 
-    .item p {
-        font-size: 13px;
-        margin: 8px 0;
-    }
-
-    .item-price-new {
-        font-size: 15px;
-    }
-
-    .item-price-old {
-        font-size: 13px;
-    }
-
-    .item-prices {
-        gap: 10px;
-    }
+  .item-prices {
+    justify-content: space-between;
+  }
 }
