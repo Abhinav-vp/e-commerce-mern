@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './AdminUsers.css';
 
@@ -8,11 +8,7 @@ const AdminUsers = ({ apiBase }) => {
 
   const token = localStorage.getItem('auth-token');
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       const response = await axios.get(`${apiBase}/api/admin/users`, {
@@ -25,7 +21,11 @@ const AdminUsers = ({ apiBase }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [apiBase, token]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const handleMakeAdmin = async (userId) => {
     try {

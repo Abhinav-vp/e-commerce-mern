@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './AdminOrders.css';
 
@@ -8,11 +8,7 @@ const AdminOrders = ({ apiBase }) => {
 
   const token = localStorage.getItem('auth-token');
 
-  useEffect(() => {
-    fetchOrders();
-  }, []);
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       setLoading(true);
       const response = await axios.get(`${apiBase}/api/admin/orders`, {
@@ -25,7 +21,11 @@ const AdminOrders = ({ apiBase }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [apiBase, token]);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
   const handleUpdateStatus = async (orderId, newStatus) => {
     try {

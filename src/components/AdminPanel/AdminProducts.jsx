@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './AdminProducts.css';
 
@@ -19,11 +19,7 @@ const AdminProducts = ({ apiBase }) => {
   const token = localStorage.getItem('auth-token');
 
   // Fetch products
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
       const response = await axios.get(`${apiBase}/api/admin/products`, {
@@ -36,7 +32,11 @@ const AdminProducts = ({ apiBase }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [apiBase, token]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
