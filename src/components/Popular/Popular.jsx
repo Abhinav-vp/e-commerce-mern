@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import './Popular.css'
 import Item from '../Items/Item'
 
-const API_BASE = "http://localhost:4000";
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000";
 
 const Popular = () => {
   const [popularProducts, setPopularProducts] = useState([]);

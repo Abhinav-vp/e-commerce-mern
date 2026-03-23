@@ -2,7 +2,7 @@ import React, { createContext, useEffect, useState } from "react";
 
 export const ShopContext = createContext(null);
 
-const API_BASE = "http://localhost:4000";
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000";
 
 const ShopContextProvider = (props) => {
     const [all_product, setAllProduct] = useState([]);
