@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import './NewCollection.css'
 import Item from '../Items/Item'
+import all_product from '../Assets/Frontend_Assets/all_product'
 
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000";
 
@@ -8,10 +9,15 @@ const NewCollection = () => {
   const [newCollections, setNewCollections] = useState([]);
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/products/newcollections`)
+    // Try to fetch from API first
+    fetch(`${API_BASE}/api/products/newcollections`, { signal: AbortSignal.timeout(3000) })
       .then((res) => res.json())
       .then((data) => setNewCollections(data))
-      .catch((err) => console.error("Failed to fetch new collections:", err));
+      .catch((err) => {
+        // Fallback to local data if API fails
+        console.warn("API unavailable, using local data:", err.message);
+        setNewCollections(all_product.slice(-8));
+      });
   }, []);
 
   return (

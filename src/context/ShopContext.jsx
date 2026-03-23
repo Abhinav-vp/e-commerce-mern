@@ -1,4 +1,5 @@
 import React, { createContext, useEffect, useState } from "react";
+import all_product_data from "../components/Assets/Frontend_Assets/all_product";
 
 export const ShopContext = createContext(null);
 
@@ -10,16 +11,20 @@ const ShopContextProvider = (props) => {
 
     // Fetch all products on mount
     useEffect(() => {
-        fetch(`${API_BASE}/api/products`)
+        fetch(`${API_BASE}/api/products`, { signal: AbortSignal.timeout(3000) })
             .then((res) => res.json())
             .then((data) => setAllProduct(data))
-            .catch((err) => console.error("Failed to fetch products:", err));
+            .catch((err) => {
+                console.warn("API unavailable, using local data:", err.message);
+                setAllProduct(all_product_data);
+            });
 
         // If user is logged in, fetch their cart
         const token = localStorage.getItem("auth-token");
         if (token) {
             fetch(`${API_BASE}/api/cart`, {
                 headers: { "auth-token": token },
+                signal: AbortSignal.timeout(3000)
             })
                 .then((res) => res.json())
                 .then((data) => setCartItems(data))

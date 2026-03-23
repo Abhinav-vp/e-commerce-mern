@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import './Popular.css'
 import Item from '../Items/Item'
+import all_product from '../Assets/Frontend_Assets/all_product'
 
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000";
 
@@ -8,10 +9,15 @@ const Popular = () => {
   const [popularProducts, setPopularProducts] = useState([]);
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/products/popular`)
+    // Try to fetch from API first
+    fetch(`${API_BASE}/api/products/popular`, { signal: AbortSignal.timeout(3000) })
       .then((res) => res.json())
       .then((data) => setPopularProducts(data))
-      .catch((err) => console.error("Failed to fetch popular products:", err));
+      .catch((err) => {
+        // Fallback to local data if API fails
+        console.warn("API unavailable, using local data:", err.message);
+        setPopularProducts(all_product.filter(p => p.category === 'women').slice(0, 4));
+      });
   }, []);
 
   return (
