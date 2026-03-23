@@ -13,7 +13,17 @@ const ShopContextProvider = (props) => {
     useEffect(() => {
         fetch(`${API_BASE}/api/products`, { signal: AbortSignal.timeout(3000) })
             .then((res) => res.json())
-            .then((data) => setAllProduct(data))
+            .then((data) => {
+                const normalized = data.map((product) => ({
+                    ...product,
+                    image: product.image
+                        ? product.image.startsWith("http")
+                            ? product.image
+                            : `${API_BASE}${product.image}`
+                        : product.image,
+                }));
+                setAllProduct(normalized);
+            })
             .catch((err) => {
                 console.warn("API unavailable, using local data:", err.message);
                 setAllProduct(all_product_data);
