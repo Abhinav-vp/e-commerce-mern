@@ -10,7 +10,7 @@ const Admin = () => {
   const [activeTab, setActiveTab] = useState('products');
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const apiBase = process.env.REACT_APP_API_BASE || 'http://localhost:4000';
+  const apiBase = process.env.REACT_APP_API_BASE || 'http://localhost:7000';
   const token = localStorage.getItem('auth-token');
 
   useEffect(() => {
@@ -21,7 +21,7 @@ const Admin = () => {
           window.location.replace('/login');
           return;
         }
-        
+
         // Verify admin can access this by trying to fetch products
         const response = await fetch(`${apiBase}/api/admin/products`, {
           headers: { 'auth-token': token },

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./CSS/LoginSignUp.css";
 
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000";
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:7000";
 
 const LoginSignUp = () => {
   const [state, setState] = useState("Login");
