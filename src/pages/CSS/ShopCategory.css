@@ -68,29 +68,35 @@
     align-items: start;
 }
 
-/* LOAD MORE BUTTON */
-
-.shopcategory-loadmore{
+/* LOAD MORE CONTAINER */
+.shopcategory-loadmore {
     display: flex;
     justify-content: center;
-    align-items: center;
-    margin: 60px auto;
-    width: 220px;
-    height: 60px;
-    border-radius: 40px;
-    background: #ededed;
+    margin: 50px 0;
+}
+
+/* ACTUAL BUTTON */
+.shopcategory-loadmore button {
+    padding: 14px 35px;
     font-size: 16px;
     font-weight: 500;
+    border-radius: 30px;
+    border: none;
+    background: #ff4141;
+    color: #fff;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
-/* LOAD MORE HOVER */
-
-.shopcategory-loadmore:hover{
-    background: #ff4141;
-    color: white;
+/* HOVER EFFECT */
+.shopcategory-loadmore button:hover {
+    background: #e63636;
     transform: scale(1.05);
+}
+
+/* CLICK EFFECT */
+.shopcategory-loadmore button:active {
+    transform: scale(0.95);
 }
 
 /* RESPONSIVE */
