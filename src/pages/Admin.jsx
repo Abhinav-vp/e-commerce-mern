@@ -10,7 +10,7 @@ const Admin = () => {
   const [activeTab, setActiveTab] = useState('products');
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const apiBase = process.env.REACT_APP_API_BASE || 'http://localhost:7000';
+  const apiBase = process.env.REACT_APP_API_BASE || `http://${window.location.hostname}:7000`;
   const token = localStorage.getItem('auth-token');
 
   useEffect(() => {
