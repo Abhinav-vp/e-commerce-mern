@@ -12,7 +12,17 @@ const NewCollection = () => {
     // Try to fetch from API first
     fetch(`${API_BASE}/api/products/newcollections`, { signal: AbortSignal.timeout(3000) })
       .then((res) => res.json())
-      .then((data) => setNewCollections(data))
+      .then((data) => {
+        const normalized = data.map((product) => ({
+          ...product,
+          image: product.image
+            ? product.image.startsWith("http")
+              ? product.image
+              : `${API_BASE}${product.image}`
+            : product.image,
+        }));
+        setNewCollections(normalized);
+      })
       .catch((err) => {
         // Fallback to local data if API fails
         console.warn("API unavailable, using local data:", err.message);

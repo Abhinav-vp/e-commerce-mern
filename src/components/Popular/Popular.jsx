@@ -3,7 +3,7 @@ import './Popular.css'
 import Item from '../Items/Item'
 import all_product from '../Assets/Frontend_Assets/all_product'
 
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000";
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:7000";
 
 const Popular = () => {
   const [popularProducts, setPopularProducts] = useState([]);
@@ -12,7 +12,17 @@ const Popular = () => {
     // Try to fetch from API first
     fetch(`${API_BASE}/api/products/popular`, { signal: AbortSignal.timeout(3000) })
       .then((res) => res.json())
-      .then((data) => setPopularProducts(data))
+      .then((data) => {
+        const normalized = data.map((product) => ({
+          ...product,
+          image: product.image
+            ? product.image.startsWith("http")
+              ? product.image
+              : `${API_BASE}${product.image}`
+            : product.image,
+        }));
+        setPopularProducts(normalized);
+      })
       .catch((err) => {
         // Fallback to local data if API fails
         console.warn("API unavailable, using local data:", err.message);
