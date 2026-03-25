@@ -37,11 +37,22 @@ const ImageCropper = ({ image, onCropComplete, onCancel }) => {
             return null;
         }
 
-        // Set canvas size to the cropped area size
-        canvas.width = pixelCrop.width;
-        canvas.height = pixelCrop.height;
+        // Set maximum thumbnail size
+        const THUMBNAIL_SIZE = 200;
+        let targetWidth = pixelCrop.width;
+        let targetHeight = pixelCrop.height;
 
-        // Draw the cropped image onto the canvas
+        // Scale down if larger than target size
+        if (targetWidth > THUMBNAIL_SIZE || targetHeight > THUMBNAIL_SIZE) {
+            const scale = Math.min(THUMBNAIL_SIZE / targetWidth, THUMBNAIL_SIZE / targetHeight);
+            targetWidth = targetWidth * scale;
+            targetHeight = targetHeight * scale;
+        }
+
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+
+        // Draw the cropped and resized image onto the canvas
         ctx.drawImage(
             image,
             pixelCrop.x,
@@ -50,11 +61,11 @@ const ImageCropper = ({ image, onCropComplete, onCancel }) => {
             pixelCrop.height,
             0,
             0,
-            pixelCrop.width,
-            pixelCrop.height
+            targetWidth,
+            targetHeight
         );
 
-        // As a blob
+        // As a blob with 0.5 quality to significantly reduce file size
         return new Promise((resolve, reject) => {
             canvas.toBlob((blob) => {
                 if (!blob) {
@@ -62,7 +73,7 @@ const ImageCropper = ({ image, onCropComplete, onCancel }) => {
                     return;
                 }
                 resolve(blob);
-            }, 'image/jpeg');
+            }, 'image/jpeg', 0.5);
         });
     };
 
