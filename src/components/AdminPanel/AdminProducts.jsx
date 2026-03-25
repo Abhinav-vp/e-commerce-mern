@@ -15,6 +15,8 @@ const AdminProducts = ({ apiBase }) => {
     new_price: '',
     old_price: '',
   });
+  const [dragging, setDragging] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const token = localStorage.getItem('auth-token');
 
@@ -41,6 +43,71 @@ const AdminProducts = ({ apiBase }) => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+  };
+
+  const handleImageUpload = async (file) => {
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('Please upload a valid image file (JPEG, PNG, or WebP)');
+      return;
+    }
+
+    setUploading(true);
+    const data = new FormData();
+    data.append("product", file);
+
+    try {
+      const res = await axios.post(`${apiBase}/upload`, data);
+
+      if (res.data.success) {
+        setFormData((prev) => ({
+          ...prev,
+          image: res.data.image_url,
+        }));
+        console.log("Image uploaded successfully:", res.data.image_url);
+      } else {
+        alert("Image upload failed: " + (res.data.message || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Image upload failed:", error);
+      alert("Image upload failed. Please check your connection and try again.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragging(false);
+    const file = e.dataTransfer.files[0];
+    handleImageUpload(file);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragging(false);
+  };
+
+  const handleFileChange = (e) => {
+    e.stopPropagation();
+    const file = e.target.files[0];
+    handleImageUpload(file);
   };
 
   const handleAddProduct = async (e) => {
@@ -182,15 +249,42 @@ const AdminProducts = ({ apiBase }) => {
           </div>
 
           <div className="form-group">
-            <label>Image URL</label>
-            <input
-              type="text"
-              name="image"
-              value={formData.image}
-              onChange={handleInputChange}
-              placeholder="https://example.com/image.png"
-              required
-            />
+            <label>Upload Product Image</label>
+
+            <div
+              className={`upload-box ${dragging ? 'dragging' : ''}`}
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDragEnter={handleDragEnter}
+              onDragLeave={handleDragLeave}
+              onClick={(e) => {
+                if (e.target.tagName === "DIV" || e.target.tagName === "P") {
+                  document.getElementById("fileInput").click();
+                }
+              }}
+            >
+              {formData.image ? (
+                <img src={formData.image} alt="preview" className="preview-img" />
+              ) : uploading ? (
+                <div className="upload-loading">
+                  <div className="spinner"></div>
+                  <p>Uploading...</p>
+                </div>
+              ) : (
+                <p>Drag & Drop Image or Click to Upload</p>
+              )}
+
+              <input
+                type="file"
+                id="fileInput"
+                onChange={handleFileChange}
+                hidden
+              />
+
+              <label htmlFor="fileInput" className="upload-btn">
+                Choose File
+              </label>
+            </div>
           </div>
 
           <div className="form-group">
