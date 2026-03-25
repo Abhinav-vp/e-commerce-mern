@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import ImageCropper from './ImageCropper';
 import './AdminProducts.css';
 
 const AdminProducts = ({ apiBase }) => {
@@ -17,6 +18,7 @@ const AdminProducts = ({ apiBase }) => {
   });
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState(null);
 
   const token = localStorage.getItem('auth-token');
 
@@ -84,7 +86,11 @@ const AdminProducts = ({ apiBase }) => {
     e.stopPropagation();
     setDragging(false);
     const file = e.dataTransfer.files[0];
-    handleImageUpload(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => setImageToCrop(reader.result);
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleDragOver = (e) => {
@@ -107,7 +113,17 @@ const AdminProducts = ({ apiBase }) => {
   const handleFileChange = (e) => {
     e.stopPropagation();
     const file = e.target.files[0];
-    handleImageUpload(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => setImageToCrop(reader.result);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCropComplete = async (croppedBlob) => {
+    setImageToCrop(null);
+    const croppedFile = new File([croppedBlob], "cropped_image.jpg", { type: "image/jpeg" });
+    handleImageUpload(croppedFile);
   };
 
   const handleAddProduct = async (e) => {
@@ -194,6 +210,13 @@ const AdminProducts = ({ apiBase }) => {
   return (
     <div className="admin-products">
       <h2>Manage Products</h2>
+      {imageToCrop && (
+        <ImageCropper
+          image={imageToCrop}
+          onCropComplete={handleCropComplete}
+          onCancel={() => setImageToCrop(null)}
+        />
+      )}
 
       <button
         className="btn-add-product"
