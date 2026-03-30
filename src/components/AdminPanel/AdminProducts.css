@@ -109,6 +109,32 @@
   border-radius: 10px;
 }
 
+/* SUB IMAGES UPLOAD */
+.sub-images-upload-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.sub-upload {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+}
+
+.sub-upload-placeholder {
+  font-size: 24px;
+  color: #ccc;
+  font-weight: bold;
+}
+
+.sub-upload .preview-img {
+  max-height: 90px;
+}
+
 /* loading state */
 .upload-loading {
   display: flex;
@@ -178,6 +204,21 @@ td {
   padding: 12px;
   text-align: center;
   border-bottom: 1px solid #ddd;
+}
+
+/* Image Column */
+.admin-product-img-td {
+  width: 80px;
+  padding: 5px !important;
+}
+
+.admin-product-thumb {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  border-radius: 4px;
+  background: #f9f9f9;
+  border: 1px solid #eee;
 }
 
 /* ACTION BUTTONS */
@@ -256,6 +297,14 @@ td {
 
   .upload-box {
     padding: 15px;
+  }
+
+  .sub-images-upload-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .sub-upload {
+    height: 80px;
   }
 
   th,

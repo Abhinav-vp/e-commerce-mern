@@ -21,6 +21,17 @@ const ShopContextProvider = (props) => {
                             ? product.image
                             : `${API_BASE}${product.image}`
                         : product.image,
+                    thumbnail: (product.thumbnail && !product.thumbnail.includes("undefined"))
+                        ? product.thumbnail.startsWith("http")
+                            ? product.thumbnail
+                            : `${API_BASE}${product.thumbnail}`
+                        : undefined,
+                    sub_images: (product.sub_images || []).map(url =>
+                        url ? (url.startsWith("http") ? url : `${API_BASE}${url}`) : url
+                    ),
+                    sub_thumbnails: (product.sub_thumbnails || []).map(url =>
+                        url ? (url.startsWith("http") ? url : `${API_BASE}${url}`) : url
+                    ),
                 }));
                 setAllProduct(normalized);
             })

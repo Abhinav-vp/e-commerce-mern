@@ -129,9 +129,9 @@ const PlaceOrder = () => {
                 <div className="payment-method">
                     <p className='title'>Payment Method</p>
                     <div className="payment-options">
-                        <div onClick={() => setMethod('razorpay')} className={`payment-option ${method === 'razorpay' ? 'active' : ''}`}>
+                        {/* <div onClick={() => setMethod('razorpay')} className={`payment-option ${method === 'razorpay' ? 'active' : ''}`}>
                             <p>Razorpay</p>
-                        </div>
+                        </div> */}
                         <div onClick={() => setMethod('cod')} className={`payment-option ${method === 'cod' ? 'active' : ''}`}>
                             <p>Cash on Delivery</p>
                         </div>

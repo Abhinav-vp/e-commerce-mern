@@ -13,6 +13,7 @@ const AdminProducts = ({ apiBase }) => {
     name: '',
     category: 'women',
     image: '',
+    sub_images: ['', '', '', ''],
     new_price: '',
     old_price: '',
   });
@@ -29,7 +30,20 @@ const AdminProducts = ({ apiBase }) => {
       const response = await axios.get(`${apiBase}/api/admin/products`, {
         headers: { 'auth-token': token },
       });
-      setProducts(response.data.products);
+      // Normalize images and thumbnails
+      const normalized = response.data.products.map(product => ({
+        ...product,
+        image: product.image 
+          ? (product.image.startsWith('http') ? product.image : `${apiBase}${product.image}`)
+          : product.image,
+        sub_images: (product.sub_images || []).map(url => 
+          url ? (url.startsWith('http') ? url : `${apiBase}${url}`) : ''
+        ),
+        thumbnail: (product.thumbnail && !product.thumbnail.includes("undefined"))
+          ? (product.thumbnail.startsWith('http') ? product.thumbnail : `${apiBase}${product.thumbnail}`)
+          : undefined,
+      }));
+      setProducts(normalized);
     } catch (error) {
       console.error('Error fetching products:', error);
       alert('Failed to fetch products');
@@ -47,7 +61,7 @@ const AdminProducts = ({ apiBase }) => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleImageUpload = async (file) => {
+  const handleImageUpload = async (file, index = -1) => {
     if (!file) return;
 
     // Validate file type
@@ -65,10 +79,18 @@ const AdminProducts = ({ apiBase }) => {
       const res = await axios.post(`${apiBase}/upload`, data);
 
       if (res.data.success) {
-        setFormData((prev) => ({
-          ...prev,
-          image: res.data.image_url,
-        }));
+        if (index === -1) {
+          setFormData((prev) => ({
+            ...prev,
+            image: res.data.image_url,
+          }));
+        } else {
+          setFormData((prev) => {
+            const nextSubImages = [...prev.sub_images];
+            nextSubImages[index] = res.data.image_url;
+            return { ...prev, sub_images: nextSubImages };
+          });
+        }
         console.log("Image uploaded successfully:", res.data.image_url);
       } else {
         alert("Image upload failed: " + (res.data.message || "Unknown error"));
@@ -121,9 +143,10 @@ const AdminProducts = ({ apiBase }) => {
   };
 
   const handleCropComplete = async (croppedBlob) => {
+    const index = imageToCrop?.index ?? -1;
     setImageToCrop(null);
     const croppedFile = new File([croppedBlob], "cropped_image.jpg", { type: "image/jpeg" });
-    handleImageUpload(croppedFile);
+    handleImageUpload(croppedFile, index);
   };
 
   const handleAddProduct = async (e) => {
@@ -144,6 +167,7 @@ const AdminProducts = ({ apiBase }) => {
         name: '',
         category: 'women',
         image: '',
+        sub_images: ['', '', '', ''],
         new_price: '',
         old_price: '',
       });
@@ -169,6 +193,7 @@ const AdminProducts = ({ apiBase }) => {
         name: '',
         category: 'women',
         image: '',
+        sub_images: ['', '', '', ''],
         new_price: '',
         old_price: '',
       });
@@ -201,6 +226,7 @@ const AdminProducts = ({ apiBase }) => {
       name: product.name,
       category: product.category,
       image: product.image,
+      sub_images: product.sub_images && product.sub_images.length ? product.sub_images : ['', '', '', ''],
       new_price: product.new_price,
       old_price: product.old_price,
     });
@@ -212,7 +238,7 @@ const AdminProducts = ({ apiBase }) => {
       <h2>Manage Products</h2>
       {imageToCrop && (
         <ImageCropper
-          image={imageToCrop}
+          image={imageToCrop.data || imageToCrop}
           onCropComplete={handleCropComplete}
           onCancel={() => setImageToCrop(null)}
         />
@@ -227,6 +253,7 @@ const AdminProducts = ({ apiBase }) => {
             name: '',
             category: 'women',
             image: '',
+            sub_images: ['', '', '', ''],
             new_price: '',
             old_price: '',
           });
@@ -272,10 +299,9 @@ const AdminProducts = ({ apiBase }) => {
           </div>
 
           <div className="form-group">
-            <label>Upload Product Image</label>
-
+            <label>Upload Main Product Image</label>
             <div
-              className={`upload-box ${dragging ? 'dragging' : ''}`}
+              className={`upload-box ${dragging === -1 ? 'dragging' : ''}`}
               onDrop={handleDrop}
               onDragOver={handleDragOver}
               onDragEnter={handleDragEnter}
@@ -287,7 +313,17 @@ const AdminProducts = ({ apiBase }) => {
               }}
             >
               {formData.image ? (
-                <img src={formData.image} alt="preview" className="preview-img" />
+                <img 
+                  src={formData.image} 
+                  alt="preview" 
+                  className="preview-img" 
+                  onError={(e) => {
+                    const baseUrl = e.target.src.split('/thumbnails/')[0] || e.target.src.split('/images/')[0];
+                    if (e.target.src.includes('/thumbnails/')) {
+                      e.target.src = e.target.src.replace('/thumbnails/', '/images/').replace('thumb_', '');
+                    }
+                  }}
+                />
               ) : uploading ? (
                 <div className="upload-loading">
                   <div className="spinner"></div>
@@ -300,13 +336,56 @@ const AdminProducts = ({ apiBase }) => {
               <input
                 type="file"
                 id="fileInput"
-                onChange={handleFileChange}
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onload = () => setImageToCrop({ data: reader.result, index: -1 });
+                    reader.readAsDataURL(file);
+                  }
+                }}
                 hidden
               />
 
               <label htmlFor="fileInput" className="upload-btn">
                 Choose File
               </label>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Sub Images (Max 4 Angles)</label>
+            <div className="sub-images-upload-container">
+              {[0, 1, 2, 3].map((index) => (
+                <div 
+                  key={index}
+                  className={`upload-box sub-upload ${dragging === index ? 'dragging' : ''}`}
+                  onClick={() => document.getElementById(`subFileInput-${index}`).click()}
+                >
+                  {formData.sub_images[index] ? (
+                    <img src={formData.sub_images[index]} alt={`sub-${index}`} className="preview-img" />
+                  ) : (
+                    <div className="sub-upload-placeholder">
+                      <span>+</span>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    id={`subFileInput-${index}`}
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                          setImageToCrop({ data: reader.result, index });
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                    hidden
+                  />
+                </div>
+              ))}
             </div>
           </div>
 
@@ -350,6 +429,7 @@ const AdminProducts = ({ apiBase }) => {
             <thead>
               <tr>
                 <th>ID</th>
+                <th>Image</th>
                 <th>Name</th>
                 <th>Category</th>
                 <th>New Price</th>
@@ -361,6 +441,17 @@ const AdminProducts = ({ apiBase }) => {
               {products.map((product) => (
                 <tr key={product._id}>
                   <td>{product.id}</td>
+                  <td className="admin-product-img-td">
+                    <img 
+                      src={product.thumbnail || product.image} 
+                      alt="" 
+                      className="admin-product-thumb"
+                      onError={(e) => {
+                        e.target.src = product.image;
+                        e.target.onerror = null;
+                      }}
+                    />
+                  </td>
                   <td>{product.name}</td>
                   <td>{product.category}</td>
                   <td>₹{product.new_price}</td>

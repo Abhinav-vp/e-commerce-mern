@@ -38,6 +38,7 @@ const ShopCategory = (props) => {
               id={item.id}
               name={item.name}
               image={item.image}
+              thumbnail={item.thumbnail}
               new_price={item.new_price}
               old_price={item.old_price}
             />

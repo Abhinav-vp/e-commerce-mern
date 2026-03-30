@@ -1,25 +1,54 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import './ProductDisplay.css'
 import star_icon from '../Assets/Frontend_Assets/star_icon.png'
 import star_dull_icon from '../Assets/Frontend_Assets/star_dull_icon.png'
 import { ShopContext } from '../../context/ShopContext'
 
 const ProductDisplay = (props) => {
-    const {product}=props;
-    const {addToCart} =useContext(ShopContext);
-  return (
-    <div className='productdisplay'>
-      <div className="productdisplay-left">
-         <div className="productdisplay-img-list">
-            <img src={product.image} alt="" />
-            <img src={product.image} alt="" />
-            <img src={product.image} alt="" />
-            <img src={product.image} alt="" />
-         </div>
-         <div className="productdisplay-image">
-            <img className='productdisplay-main-img' src={product.image} alt="" />
-         </div>
-      </div>
+    const { product } = props;
+    const { addToCart } = useContext(ShopContext);
+    
+    // Track which image is currently showing in the main display
+    const [mainImage, setMainImage] = useState(product.image);
+
+    // Sync main image when product changes (e.g. navigating between products)
+    useEffect(() => {
+        setMainImage(product.image);
+    }, [product]);
+
+    // Construct the list of images to show in thumbnails
+    // We want to show the main image + any sub_images (up to 4 total)
+    const displayImages = [
+        { main: product.image, thumb: product.thumbnail || product.image },
+        ...(product.sub_images || []).map((img, i) => ({
+            main: img,
+            thumb: (product.sub_thumbnails && product.sub_thumbnails[i]) || img
+        }))
+    ].slice(0, 4);
+
+    // Fill remaining slots to maintain the 4-thumbnail grid if needed
+    while (displayImages.length > 0 && displayImages.length < 4) {
+        displayImages.push(displayImages[0]);
+    }
+
+    return (
+        <div className='productdisplay'>
+            <div className="productdisplay-left">
+                <div className="productdisplay-img-list">
+                    {displayImages.map((img, index) => (
+                        <img 
+                            key={index}
+                            src={img.thumb} 
+                            alt={`angle-${index}`} 
+                            onClick={() => setMainImage(img.main)}
+                            className={mainImage === img.main ? 'active-thumb' : ''}
+                        />
+                    ))}
+                </div>
+                <div className="productdisplay-image">
+                    <img className='productdisplay-main-img' src={mainImage} alt="" />
+                </div>
+            </div>
       <div className="productdisplay-right">
          <h1>{product.name}</h1>
          <div className="productdisplay-right-star">

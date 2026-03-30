@@ -9,7 +9,7 @@ const Item = (props) => {
         <div className="item-img-container">
           <img 
             onClick={() => window.scrollTo(0, 0)} 
-            src={props.image} 
+            src={props.thumbnail || props.image} 
             alt={props.name} 
           />
         </div>

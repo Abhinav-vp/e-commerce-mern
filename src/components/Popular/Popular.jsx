@@ -20,6 +20,11 @@ const Popular = () => {
               ? product.image
               : `${API_BASE}${product.image}`
             : product.image,
+          thumbnail: (product.thumbnail && !product.thumbnail.includes("undefined"))
+            ? product.thumbnail.startsWith("http")
+              ? product.thumbnail
+              : `${API_BASE}${product.thumbnail}`
+            : undefined,
         }));
         setPopularProducts(normalized);
       })
@@ -36,7 +41,7 @@ const Popular = () => {
       <hr />
       <div className="popular-item">
         {popularProducts.map((item, i) => {
-          return <Item key={i} id={item.id} name={item.name} image={item.image} new_price={item.new_price} old_price={item.old_price} />
+          return <Item key={i} id={item.id} name={item.name} image={item.image} thumbnail={item.thumbnail} new_price={item.new_price} old_price={item.old_price} />
         })}
       </div>
     </div>
