@@ -17,8 +17,8 @@ const AdminProducts = ({ apiBase }) => {
     new_price: '',
     old_price: '',
   });
-  const [dragging, setDragging] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [dragging, setDragging] = useState(null); // -1 for main, 0-3 for sub
+  const [uploading, setUploading] = useState(null); // index or 'main'
   const [imageToCrop, setImageToCrop] = useState(null);
 
   const token = localStorage.getItem('auth-token');
@@ -36,9 +36,10 @@ const AdminProducts = ({ apiBase }) => {
         image: product.image 
           ? (product.image.startsWith('http') ? product.image : `${apiBase}${product.image}`)
           : product.image,
-        sub_images: (product.sub_images || []).map(url => 
-          url ? (url.startsWith('http') ? url : `${apiBase}${url}`) : ''
-        ),
+        sub_images: Array.from({ length: 4 }, (_, i) => {
+          const url = product.sub_images && product.sub_images[i];
+          return url ? (url.startsWith('http') ? url : `${apiBase}${url}`) : '';
+        }),
         thumbnail: (product.thumbnail && !product.thumbnail.includes("undefined"))
           ? (product.thumbnail.startsWith('http') ? product.thumbnail : `${apiBase}${product.thumbnail}`)
           : undefined,
@@ -71,7 +72,7 @@ const AdminProducts = ({ apiBase }) => {
       return;
     }
 
-    setUploading(true);
+    setUploading(index === -1 ? 'main' : index);
     const data = new FormData();
     data.append("product", file);
 
@@ -99,18 +100,18 @@ const AdminProducts = ({ apiBase }) => {
       console.error("Image upload failed:", error);
       alert("Image upload failed. Please check your connection and try again.");
     } finally {
-      setUploading(false);
+      setUploading(null);
     }
   };
 
-  const handleDrop = (e) => {
+  const handleDrop = (e, index) => {
     e.preventDefault();
     e.stopPropagation();
-    setDragging(false);
+    setDragging(null);
     const file = e.dataTransfer.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = () => setImageToCrop(reader.result);
+      reader.onload = () => setImageToCrop({ data: reader.result, index });
       reader.readAsDataURL(file);
     }
   };
@@ -120,24 +121,24 @@ const AdminProducts = ({ apiBase }) => {
     e.stopPropagation();
   };
 
-  const handleDragEnter = (e) => {
+  const handleDragEnter = (e, index) => {
     e.preventDefault();
     e.stopPropagation();
-    setDragging(true);
+    setDragging(index);
   };
 
   const handleDragLeave = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    setDragging(false);
+    setDragging(null);
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = (e, index) => {
     e.stopPropagation();
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = () => setImageToCrop(reader.result);
+      reader.onload = () => setImageToCrop({ data: reader.result, index });
       reader.readAsDataURL(file);
     }
   };
@@ -226,7 +227,7 @@ const AdminProducts = ({ apiBase }) => {
       name: product.name,
       category: product.category,
       image: product.image,
-      sub_images: product.sub_images && product.sub_images.length ? product.sub_images : ['', '', '', ''],
+      sub_images: Array.from({ length: 4 }, (_, i) => (product.sub_images && product.sub_images[i]) || ''),
       new_price: product.new_price,
       old_price: product.old_price,
     });
@@ -302,15 +303,11 @@ const AdminProducts = ({ apiBase }) => {
             <label>Upload Main Product Image</label>
             <div
               className={`upload-box ${dragging === -1 ? 'dragging' : ''}`}
-              onDrop={handleDrop}
+              onDrop={(e) => handleDrop(e, -1)}
               onDragOver={handleDragOver}
-              onDragEnter={handleDragEnter}
+              onDragEnter={(e) => handleDragEnter(e, -1)}
               onDragLeave={handleDragLeave}
-              onClick={(e) => {
-                if (e.target.tagName === "DIV" || e.target.tagName === "P") {
-                  document.getElementById("fileInput").click();
-                }
-              }}
+              onClick={() => document.getElementById("fileInput").click()}
             >
               {formData.image ? (
                 <img 
@@ -318,41 +315,27 @@ const AdminProducts = ({ apiBase }) => {
                   alt="preview" 
                   className="preview-img" 
                   onError={(e) => {
-                    const baseUrl = e.target.src.split('/thumbnails/')[0] || e.target.src.split('/images/')[0];
                     if (e.target.src.includes('/thumbnails/')) {
                       e.target.src = e.target.src.replace('/thumbnails/', '/images/').replace('thumb_', '');
                     }
                   }}
                 />
-              ) : uploading ? (
-                <div className="upload-loading">
-                  <div className="spinner"></div>
-                  <p>Uploading...</p>
-                </div>
+              ) : (uploading === 'main' || uploading === true) ? (
+                <div className="upload-loading"><div className="spinner"></div><p>Uploading...</p></div>
               ) : (
-                <p>Drag & Drop Image or Click to Upload</p>
+                <p>Drag & Drop Main Image or Click</p>
               )}
-
+ 
               <input
                 type="file"
                 id="fileInput"
-                onChange={(e) => {
-                  const file = e.target.files[0];
-                  if (file) {
-                    const reader = new FileReader();
-                    reader.onload = () => setImageToCrop({ data: reader.result, index: -1 });
-                    reader.readAsDataURL(file);
-                  }
-                }}
+                onChange={(e) => handleFileChange(e, -1)}
                 hidden
               />
-
-              <label htmlFor="fileInput" className="upload-btn">
-                Choose File
-              </label>
+              <label htmlFor="fileInput" className="upload-btn">Choose File</label>
             </div>
           </div>
-
+ 
           <div className="form-group">
             <label>Sub Images (Max 4 Angles)</label>
             <div className="sub-images-upload-container">
@@ -360,28 +343,37 @@ const AdminProducts = ({ apiBase }) => {
                 <div 
                   key={index}
                   className={`upload-box sub-upload ${dragging === index ? 'dragging' : ''}`}
+                  onDrop={(e) => handleDrop(e, index)}
+                  onDragOver={handleDragOver}
+                  onDragEnter={(e) => handleDragEnter(e, index)}
+                  onDragLeave={handleDragLeave}
                   onClick={() => document.getElementById(`subFileInput-${index}`).click()}
                 >
                   {formData.sub_images[index] ? (
-                    <img src={formData.sub_images[index]} alt={`sub-${index}`} className="preview-img" />
+                    <>
+                      <img src={formData.sub_images[index]} alt={`sub-${index}`} className="preview-img" />
+                      <button 
+                        type="button" 
+                        className="btn-remove-img"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFormData(prev => {
+                            const next = [...prev.sub_images];
+                            next[index] = '';
+                            return { ...prev, sub_images: next };
+                          });
+                        }}
+                      >×</button>
+                    </>
+                  ) : uploading === index ? (
+                    <div className="upload-loading"><div className="spinner"></div></div>
                   ) : (
-                    <div className="sub-upload-placeholder">
-                      <span>+</span>
-                    </div>
+                    <div className="sub-upload-placeholder"><span>+</span></div>
                   )}
                   <input
                     type="file"
                     id={`subFileInput-${index}`}
-                    onChange={(e) => {
-                      const file = e.target.files[0];
-                      if (file) {
-                        const reader = new FileReader();
-                        reader.onload = () => {
-                          setImageToCrop({ data: reader.result, index });
-                        };
-                        reader.readAsDataURL(file);
-                      }
-                    }}
+                    onChange={(e) => handleFileChange(e, index)}
                     hidden
                   />
                 </div>

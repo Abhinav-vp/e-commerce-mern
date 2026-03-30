@@ -33,6 +33,12 @@ transition: 0.3s;
 transform: scale(1.05);
 }
 
+.productdisplay-img-list img.active-thumb {
+border: 2.5px solid #ff4141;
+opacity: 1;
+transform: scale(1.05);
+}
+
 .productdisplay-image {
 width: 100%;
 max-width: 400px;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import './MyOrders.css'
-import { ShopContext } from '../context/ShopContext'
+// import { ShopContext } from '../context/ShopContext'
 import axios from 'axios'
 import parcel_icon from '../components/Assets/Frontend_Assets/parcel_icon.png'
 
