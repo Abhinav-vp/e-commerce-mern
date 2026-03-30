@@ -42,11 +42,25 @@ const ProductDisplay = (props) => {
                             alt={`angle-${index}`} 
                             onClick={() => setMainImage(img.main)}
                             className={mainImage === img.main ? 'active-thumb' : ''}
+                            onError={(e) => {
+                                e.target.src = img.main;
+                                e.target.onerror = null;
+                            }}
                         />
                     ))}
                 </div>
                 <div className="productdisplay-image">
-                    <img className='productdisplay-main-img' src={mainImage} alt="" />
+                    <img 
+                        className='productdisplay-main-img' 
+                        src={mainImage} 
+                        alt="" 
+                        onError={(e) => {
+                            // If main image fails, we don't have a specific fallback here
+                            // but we can try the first available sub_image if needed.
+                            // For now, just prevent infinite loops.
+                            e.target.onerror = null;
+                        }}
+                    />
                 </div>
             </div>
       <div className="productdisplay-right">

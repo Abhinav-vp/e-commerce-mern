@@ -43,6 +43,10 @@ const AdminProducts = ({ apiBase }) => {
         thumbnail: (product.thumbnail && !product.thumbnail.includes("undefined"))
           ? (product.thumbnail.startsWith('http') ? product.thumbnail : `${apiBase}${product.thumbnail}`)
           : undefined,
+        sub_thumbnails: Array.from({ length: 4 }, (_, i) => {
+          const url = product.sub_thumbnails && product.sub_thumbnails[i];
+          return url ? (url.startsWith('http') ? url : `${apiBase}${url}`) : '';
+        }),
       }));
       setProducts(normalized);
     } catch (error) {
@@ -351,7 +355,16 @@ const AdminProducts = ({ apiBase }) => {
                 >
                   {formData.sub_images[index] ? (
                     <>
-                      <img src={formData.sub_images[index]} alt={`sub-${index}`} className="preview-img" />
+                      <img 
+                        src={formData.sub_images[index]} 
+                        alt={`sub-${index}`} 
+                        className="preview-img" 
+                        onError={(e) => {
+                          if (e.target.src.includes('/thumbnails/')) {
+                            e.target.src = e.target.src.replace('/thumbnails/', '/images/').replace('thumb_', '');
+                          }
+                        }}
+                      />
                       <button 
                         type="button" 
                         className="btn-remove-img"

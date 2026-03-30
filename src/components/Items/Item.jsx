@@ -11,6 +11,10 @@ const Item = (props) => {
             onClick={() => window.scrollTo(0, 0)} 
             src={props.thumbnail || props.image} 
             alt={props.name} 
+            onError={(e) => {
+              e.target.src = props.image;
+              e.target.onerror = null;
+            }}
           />
         </div>
       </Link>
