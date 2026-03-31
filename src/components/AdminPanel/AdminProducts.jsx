@@ -343,7 +343,7 @@ const AdminProducts = ({ apiBase }) => {
           <div className="form-group">
             <label>Sub Images (Max 4 Angles)</label>
             <div className="sub-images-upload-container">
-              {[0, 1, 2, 3].map((index) => (
+              {[0,1,2,3 ].map((index) => (
                 <div 
                   key={index}
                   className={`upload-box sub-upload ${dragging === index ? 'dragging' : ''}`}

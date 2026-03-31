@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react'
 import './PlaceOrder.css'
-import { ShopContext } from '../context/ShopContext'
+import { ShopContext, API_BASE } from '../context/ShopContext'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 
@@ -36,7 +36,7 @@ const PlaceOrder = () => {
             order_id: order.id,
             handler: async (response) => {
                 try {
-                    const { data } = await axios.post('http://localhost:4000/api/orders/verifyRazorpay', { ...response, orderId: order.receipt }, { headers: { 'auth-token': localStorage.getItem('auth-token') } });
+                    const { data } = await axios.post(`${API_BASE}/api/orders/verifyRazorpay`, { ...response, orderId: order.receipt }, { headers: { 'auth-token': localStorage.getItem('auth-token') } });
                     if (data.success) {
                         navigate('/myorders');
                     }
@@ -65,14 +65,17 @@ const PlaceOrder = () => {
                 address: formData,
                 items: orderItems,
                 amount: getTotalCartAmount(),
-                paymentMethod: method === 'cod' ? 'COD' : 'Razorpay'
+                paymentMethod: method === 'cod' ? 'COD' : (method === 'stripe' ? 'Stripe' : 'Razorpay')
             }
 
-            const response = await axios.post('http://localhost:4000/api/orders/place', orderData, { headers: { 'auth-token': localStorage.getItem('auth-token') } });
+            const response = await axios.post(`${API_BASE}/api/orders/place`, orderData, { headers: { 'auth-token': localStorage.getItem('auth-token') } });
 
             if (response.data.success) {
                 if (method === 'cod') {
                     navigate('/myorders');
+                } else if (method === 'stripe') {
+                    const { session_url } = response.data;
+                    window.location.replace(session_url);
                 } else {
                     initPay(response.data.order);
                 }
@@ -132,6 +135,9 @@ const PlaceOrder = () => {
                         {/* <div onClick={() => setMethod('razorpay')} className={`payment-option ${method === 'razorpay' ? 'active' : ''}`}>
                             <p>Razorpay</p>
                         </div> */}
+                        <div onClick={() => setMethod('stripe')} className={`payment-option ${method === 'stripe' ? 'active' : ''}`}>
+                            <p>Stripe</p>
+                        </div>
                         <div onClick={() => setMethod('cod')} className={`payment-option ${method === 'cod' ? 'active' : ''}`}>
                             <p>Cash on Delivery</p>
                         </div>

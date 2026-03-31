@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import './MyOrders.css'
-// import { ShopContext } from '../context/ShopContext'
+import { API_BASE } from '../context/ShopContext'
 import axios from 'axios'
 import parcel_icon from '../components/Assets/Frontend_Assets/parcel_icon.png'
 
@@ -9,7 +9,7 @@ const MyOrders = () => {
 
     const fetchOrders = async () => {
         try {
-            const response = await axios.get('http://localhost:4000/api/orders/userorders', { headers: { 'auth-token': localStorage.getItem('auth-token') } });
+            const response = await axios.get(`${API_BASE}/api/orders/userorders`, { headers: { 'auth-token': localStorage.getItem('auth-token') } });
             if (response.data.success) {
                 setOrders(response.data.orders.reverse());
             }

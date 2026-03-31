@@ -9,6 +9,7 @@ import LoginSignUp from "./pages/LoginSignUp";
 import Admin from "./pages/Admin";
 import PlaceOrder from "./pages/PlaceOrder";
 import MyOrders from "./pages/MyOrders";
+import Verify from "./pages/Verify";
 import Footer from "./components/Footer/Footer";
 import men_banner from "./components/Assets/Frontend_Assets/banner_mens.png";
 import women_banner from "./components/Assets/Frontend_Assets/banner_women.png";
@@ -39,6 +40,7 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/placeorder" element={<PlaceOrder />} />
           <Route path="/myorders" element={<MyOrders />} />
+          <Route path="/verify" element={<Verify />} />
           <Route path="/login" element={<LoginSignUp />} />
           <Route path="/admin" element={<Admin />} />
         </Routes>
