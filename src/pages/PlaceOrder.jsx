@@ -61,6 +61,11 @@ const PlaceOrder = () => {
                 }
             })
 
+            if (orderItems.length === 0) {
+                alert("Your cart is empty. Please add items before placing an order.");
+                return;
+            }
+
             let orderData = {
                 address: formData,
                 items: orderItems,
