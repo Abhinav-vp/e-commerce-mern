@@ -70,7 +70,7 @@ const PlaceOrder = () => {
                 address: formData,
                 items: orderItems,
                 amount: getTotalCartAmount(),
-                paymentMethod: method === 'cod' ? 'COD' : (method === 'stripe' ? 'Stripe' : 'Razorpay')
+                paymentMethod: method === 'cod' ? 'COD' : 'Razorpay'
             }
 
             const response = await axios.post(`${API_BASE}/api/orders/place`, orderData, { headers: { 'auth-token': localStorage.getItem('auth-token') } });
@@ -78,9 +78,6 @@ const PlaceOrder = () => {
             if (response.data.success) {
                 if (method === 'cod') {
                     navigate('/myorders');
-                } else if (method === 'stripe') {
-                    const { session_url } = response.data;
-                    window.location.replace(session_url);
                 } else {
                     initPay(response.data.order);
                 }
@@ -137,11 +134,8 @@ const PlaceOrder = () => {
                 <div className="payment-method">
                     <p className='title'>Payment Method</p>
                     <div className="payment-options">
-                        {/* <div onClick={() => setMethod('razorpay')} className={`payment-option ${method === 'razorpay' ? 'active' : ''}`}>
+                        <div onClick={() => setMethod('razorpay')} className={`payment-option ${method === 'razorpay' ? 'active' : ''}`}>
                             <p>Razorpay</p>
-                        </div> */}
-                        <div onClick={() => setMethod('stripe')} className={`payment-option ${method === 'stripe' ? 'active' : ''}`}>
-                            <p>Stripe</p>
                         </div>
                         <div onClick={() => setMethod('cod')} className={`payment-option ${method === 'cod' ? 'active' : ''}`}>
                             <p>Cash on Delivery</p>
