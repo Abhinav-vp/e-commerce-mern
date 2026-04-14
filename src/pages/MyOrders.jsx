@@ -3,8 +3,10 @@ import './MyOrders.css'
 import { API_BASE } from '../context/ShopContext'
 import axios from 'axios'
 import parcel_icon from '../components/Assets/Frontend_Assets/parcel_icon.png'
+import { useNavigate } from 'react-router-dom'
 
 const MyOrders = () => {
+    const navigate = useNavigate();
     const [orders, setOrders] = useState([]);
 
     const fetchOrders = async () => {
@@ -40,7 +42,7 @@ const MyOrders = () => {
                             <p>${order.amount}.00</p>
                             <p>Items: {order.items.length}</p>
                             <p><span>&#x25cf;</span> <b>{order.status}</b></p>
-                            <button onClick={fetchOrders}>Track Order</button>
+                            <button onClick={() => navigate(`/trackorder/${order._id}`)}>Track Order</button>
                         </div>
                     )
                 })}

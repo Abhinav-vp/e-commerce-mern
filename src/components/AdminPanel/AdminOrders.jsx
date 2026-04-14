@@ -44,11 +44,19 @@ const AdminOrders = ({ apiBase }) => {
 
   const getStatusColor = (status) => {
     switch (status) {
+      case 'Order Placed':
       case 'pending':
         return '#ff9800';
+      case 'Processing':
       case 'processing':
         return '#2196f3';
+      case 'Shipped':
+        return '#9c27b0';
+      case 'Out for Delivery':
+        return '#673ab7';
+      case 'Completed':
       case 'completed':
+      case 'Delivered':
         return '#4caf50';
       case 'cancelled':
         return '#f44336';
@@ -89,12 +97,14 @@ const AdminOrders = ({ apiBase }) => {
                   <td className="actions">
                     <select
                       className="status-select"
-                      defaultValue={order.status}
+                      value={order.status}
                       onChange={(e) => handleUpdateStatus(order._id, e.target.value)}
                     >
-                      <option value="pending">Pending</option>
-                      <option value="processing">Processing</option>
-                      <option value="completed">Completed</option>
+                      <option value="Order Placed">Order Placed</option>
+                      <option value="Processing">Processing</option>
+                      <option value="Shipped">Shipped</option>
+                      <option value="Out for Delivery">Out for Delivery</option>
+                      <option value="Delivered">Delivered</option>
                       <option value="cancelled">Cancelled</option>
                     </select>
                   </td>
