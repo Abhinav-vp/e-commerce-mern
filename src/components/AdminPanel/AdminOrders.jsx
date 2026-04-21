@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import { useModal } from '../../context/ModalContext';
 import './AdminOrders.css';
 
 const AdminOrders = ({ apiBase }) => {
+  const { showModal } = useModal();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -17,11 +19,11 @@ const AdminOrders = ({ apiBase }) => {
       setOrders(response.data.orders);
     } catch (error) {
       console.error('Error fetching orders:', error);
-      alert('Failed to fetch orders');
+      showModal({ title: 'Error', message: 'Failed to fetch orders' });
     } finally {
       setLoading(false);
     }
-  }, [apiBase, token]);
+  }, [apiBase, token, showModal]);
 
   useEffect(() => {
     fetchOrders();
@@ -34,11 +36,11 @@ const AdminOrders = ({ apiBase }) => {
         { status: newStatus },
         { headers: { 'auth-token': token } }
       );
-      alert('Order status updated');
+      showModal({ title: 'Success', message: 'Order status updated' });
       fetchOrders();
     } catch (error) {
       console.error('Error updating order:', error);
-      alert('Failed to update order');
+      showModal({ title: 'Error', message: 'Failed to update order' });
     }
   };
 

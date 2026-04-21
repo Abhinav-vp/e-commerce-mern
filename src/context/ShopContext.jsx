@@ -53,9 +53,9 @@ const ShopContextProvider = (props) => {
         }
     }, []);
 
-    const addToCart = (itemId, size) => {
+    const addToCart = (itemId, size, quantity = 1) => {
         const cartKey = size ? `${itemId}_${size}` : itemId;
-        setCartItems((prev) => ({ ...prev, [cartKey]: (prev[cartKey] || 0) + 1 }));
+        setCartItems((prev) => ({ ...prev, [cartKey]: (prev[cartKey] || 0) + quantity }));
         const token = localStorage.getItem("auth-token");
         if (token) {
             fetch(`${API_BASE}/api/cart/add`, {
@@ -64,7 +64,7 @@ const ShopContextProvider = (props) => {
                     "Content-Type": "application/json",
                     "auth-token": token,
                 },
-                body: JSON.stringify({ itemId, size }),
+                body: JSON.stringify({ itemId, size, quantity }),
             }).catch((err) => console.error("Failed to add to cart:", err));
         }
     };

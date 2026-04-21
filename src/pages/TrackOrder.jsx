@@ -5,6 +5,7 @@ import { MapContainer, TileLayer, Marker, Polyline, Popup, useMap } from "react-
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { API_BASE } from "../context/ShopContext";
+import { useModal } from "../context/ModalContext";
 import "./CSS/TrackOrder.css";
 
 // Fix default Leaflet marker icon issue with bundlers
@@ -84,6 +85,7 @@ const FitBounds = ({ origin, destination }) => {
 
 const TrackOrder = () => {
     const { orderId } = useParams();
+    const { showModal } = useModal();
     const [trackingInfo, setTrackingInfo] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -247,7 +249,7 @@ const TrackOrder = () => {
                         <p className="payment-method">Paid via {trackingInfo.paymentMethod || "Razorpay"}</p>
                     </div>
 
-                    <button className="support-button" onClick={() => alert("Connecting to support...")}>
+                    <button className="support-button" onClick={() => showModal({ title: 'Support', message: "Connecting to support..." })}>
                         Contact Support
                     </button>
                 </div>

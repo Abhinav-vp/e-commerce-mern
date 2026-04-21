@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import { useModal } from '../../context/ModalContext';
 import './AdminUsers.css';
 
 const AdminUsers = ({ apiBase }) => {
+  const { showModal } = useModal();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -17,11 +19,11 @@ const AdminUsers = ({ apiBase }) => {
       setUsers(response.data.users);
     } catch (error) {
       console.error('Error fetching users:', error);
-      alert('Failed to fetch users');
+      showModal({ title: 'Error', message: 'Failed to fetch users' });
     } finally {
       setLoading(false);
     }
-  }, [apiBase, token]);
+  }, [apiBase, token, showModal]);
 
   useEffect(() => {
     fetchUsers();
@@ -34,11 +36,11 @@ const AdminUsers = ({ apiBase }) => {
         { isAdmin: true },
         { headers: { 'auth-token': token } }
       );
-      alert('User promoted to admin');
+      showModal({ title: 'Success', message: 'User promoted to admin' });
       fetchUsers();
     } catch (error) {
       console.error('Error updating user role:', error);
-      alert('Failed to update user role');
+      showModal({ title: 'Error', message: 'Failed to update user role' });
     }
   };
 
@@ -49,27 +51,32 @@ const AdminUsers = ({ apiBase }) => {
         { isAdmin: false },
         { headers: { 'auth-token': token } }
       );
-      alert('Admin privileges removed');
+      showModal({ title: 'Success', message: 'Admin privileges removed' });
       fetchUsers();
     } catch (error) {
       console.error('Error updating user role:', error);
-      alert('Failed to update user role');
+      showModal({ title: 'Error', message: 'Failed to update user role' });
     }
   };
 
   const handleDeleteUser = async (userId) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      try {
-        await axios.delete(`${apiBase}/api/admin/users/${userId}`, {
-          headers: { 'auth-token': token },
-        });
-        alert('User deleted successfully');
-        fetchUsers();
-      } catch (error) {
-        console.error('Error deleting user:', error);
-        alert('Failed to delete user');
+    showModal({
+      type: 'confirm',
+      title: 'Delete User',
+      message: 'Are you sure you want to delete this user?',
+      onConfirm: async () => {
+        try {
+          await axios.delete(`${apiBase}/api/admin/users/${userId}`, {
+            headers: { 'auth-token': token },
+          });
+          showModal({ title: 'Success', message: 'User deleted successfully' });
+          fetchUsers();
+        } catch (error) {
+          console.error('Error deleting user:', error);
+          showModal({ title: 'Error', message: 'Failed to delete user' });
+        }
       }
-    }
+    });
   };
 
   return (

@@ -3,10 +3,12 @@ import { ShopContext } from '../context/ShopContext';
 import AdminProducts from '../components/AdminPanel/AdminProducts';
 import AdminUsers from '../components/AdminPanel/AdminUsers';
 import AdminOrders from '../components/AdminPanel/AdminOrders';
+import { useModal } from '../context/ModalContext';
 import '../components/AdminPanel/AdminPanel.css';
 
 const Admin = () => {
   const { all_product } = useContext(ShopContext);
+  const { showModal } = useModal();
   const [activeTab, setActiveTab] = useState('products');
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -28,8 +30,11 @@ const Admin = () => {
         });
 
         if (response.status === 403) {
-          alert('You do not have admin access');
-          window.location.replace('/');
+          showModal({ 
+            title: 'Access Denied', 
+            message: 'You do not have admin access',
+            onConfirm: () => window.location.replace('/')
+          });
         } else if (response.ok) {
           setIsAdmin(true);
         }
@@ -39,7 +44,7 @@ const Admin = () => {
     };
 
     checkAdminStatus();
-  }, [token, apiBase]);
+  }, [token, apiBase, showModal]);
 
   if (!isAdmin && token) {
     return <div className="admin-loading">Loading admin panel...</div>;

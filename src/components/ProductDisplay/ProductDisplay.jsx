@@ -3,19 +3,25 @@ import './ProductDisplay.css'
 import star_icon from '../Assets/Frontend_Assets/star_icon.png'
 import star_dull_icon from '../Assets/Frontend_Assets/star_dull_icon.png'
 import { ShopContext } from '../../context/ShopContext'
+import { useModal } from '../../context/ModalContext'
+import Reviews from '../Reviews/Reviews'
 
 const ProductDisplay = (props) => {
     const { product } = props;
     const { addToCart } = useContext(ShopContext);
+    const { showModal } = useModal();
     const [selectedSize, setSelectedSize] = useState("");
-    
-    // Track which image is currently showing in the main display
-    const [mainImage, setMainImage] = useState(product.image);
+    const [quantity, setQuantity] = useState(1);
+    const [mainImage, setMainImage] = useState(product?.image);
 
     // Sync main image when product changes (e.g. navigating between products)
     useEffect(() => {
-        setMainImage(product.image);
+        if (product) {
+            setMainImage(product.image);
+        }
     }, [product]);
+
+    if (!product) return null;
 
     // Construct the list of images to show in thumbnails
     // We want to show the main image + any sub_images (up to 4 total)
@@ -99,16 +105,27 @@ The fabric is lightweight yet strong, providing long-lasting wear even after mul
                 ))}
             </div>
           </div>
-          <button onClick={()=>{
+          
+          <div className="productdisplay-right-quantity">
+            <h1>Select Quantity</h1>
+            <div className="quantity-selector">
+                <button onClick={() => setQuantity(prev => prev > 1 ? prev - 1 : 1)}>-</button>
+                <span>{quantity}</span>
+                <button onClick={() => setQuantity(prev => prev + 1)}>+</button>
+            </div>
+          </div>
+
+          <button className="add-to-cart-btn" onClick={()=>{
               if (selectedSize) {
-                  addToCart(product.id, selectedSize);
+                  addToCart(product.id, selectedSize, quantity);
               } else {
-                  alert("Please select a size before adding to cart");
+                  showModal({ title: 'Size Required', message: "Please select a size before adding to cart" });
               }
           }}>ADD TO CART</button>
           <p className='productdisplay-right-category'><span>Category:</span>Women , T-Shirt , Crop Top</p>
           <p className='productdisplay-right-category'><span>Tags:</span>Modern , Latest</p>
       </div>
+      <Reviews productId={product.id} />
     </div>
   )
 }

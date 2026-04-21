@@ -1,12 +1,20 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import './PlaceOrder.css'
 import { ShopContext, API_BASE } from '../context/ShopContext'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import { useModal } from '../context/ModalContext'
 
 const PlaceOrder = () => {
     const { getTotalCartAmount, all_product, cartItems } = useContext(ShopContext);
+    const { showModal } = useModal();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (getTotalCartAmount() === 0) {
+            navigate('/cart');
+        }
+    }, [getTotalCartAmount, navigate]);
     const [method, setMethod] = useState('cod');
     const [formData, setFormData] = useState({
         firstName: '',
@@ -53,16 +61,22 @@ const PlaceOrder = () => {
         event.preventDefault();
         try {
             let orderItems = [];
-            all_product.forEach((item) => {
-                if (cartItems[item.id] > 0) {
-                    const itemInfo = structuredClone(item);
-                    itemInfo.quantity = cartItems[item.id];
-                    orderItems.push(itemInfo);
+            Object.entries(cartItems).forEach(([key, quantity]) => {
+                if (quantity > 0) {
+                    const itemId = key.includes('_') ? key.split('_')[0] : key;
+                    const size = key.includes('_') ? key.split('_')[1] : "";
+                    const item = all_product.find((p) => p.id === Number(itemId));
+                    if (item) {
+                        const itemInfo = structuredClone(item);
+                        itemInfo.quantity = quantity;
+                        itemInfo.size = size;
+                        orderItems.push(itemInfo);
+                    }
                 }
             })
 
             if (orderItems.length === 0) {
-                alert("Your cart is empty. Please add items before placing an order.");
+                showModal({ title: 'Empty Cart', message: "Your cart is empty. Please add items before placing an order." });
                 return;
             }
 
@@ -82,12 +96,12 @@ const PlaceOrder = () => {
                     initPay(response.data.order);
                 }
             } else {
-                alert(response.data.message);
+                showModal({ title: 'Order Error', message: response.data.message });
             }
 
         } catch (error) {
             console.log(error);
-            alert(error.message);
+            showModal({ title: 'Error', message: error.message });
         }
     }
 

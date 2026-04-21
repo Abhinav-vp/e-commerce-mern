@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import { useModal } from '../../context/ModalContext';
 import ImageCropper from './ImageCropper';
 import './AdminProducts.css';
 
 const AdminProducts = ({ apiBase }) => {
+  const { showModal } = useModal();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -51,11 +53,11 @@ const AdminProducts = ({ apiBase }) => {
       setProducts(normalized);
     } catch (error) {
       console.error('Error fetching products:', error);
-      alert('Failed to fetch products');
+      showModal({ title: 'Error', message: 'Failed to fetch products' });
     } finally {
       setLoading(false);
     }
-  }, [apiBase, token]);
+  }, [apiBase, token, showModal]);
 
   useEffect(() => {
     fetchProducts();
@@ -72,7 +74,7 @@ const AdminProducts = ({ apiBase }) => {
     // Validate file type
     const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
-      alert('Please upload a valid image file (JPEG, PNG, or WebP)');
+      showModal({ title: 'Invalid File', message: 'Please upload a valid image file (JPEG, PNG, or WebP)' });
       return;
     }
 
@@ -98,11 +100,11 @@ const AdminProducts = ({ apiBase }) => {
         }
         console.log("Image uploaded successfully:", res.data.image_url);
       } else {
-        alert("Image upload failed: " + (res.data.message || "Unknown error"));
+        showModal({ title: 'Upload Failed', message: "Image upload failed: " + (res.data.message || "Unknown error") });
       }
     } catch (error) {
       console.error("Image upload failed:", error);
-      alert("Image upload failed. Please check your connection and try again.");
+      showModal({ title: 'Upload Error', message: "Image upload failed. Please check your connection and try again." });
     } finally {
       setUploading(null);
     }
@@ -157,8 +159,33 @@ const AdminProducts = ({ apiBase }) => {
   const handleAddProduct = async (e) => {
     e.preventDefault();
     try {
-      if (!formData.id || !formData.name || !formData.image || !formData.new_price || !formData.old_price) {
-        alert('All fields are required');
+      if (!formData.name) {
+        showModal({ title: 'Missing Field', message: 'Product Name is required' });
+        return;
+      }
+      if (!formData.image) {
+        showModal({ title: 'Missing Image', message: 'Main Image is required. Please upload an image.' });
+        return;
+      }
+      if (!formData.new_price) {
+        showModal({ title: 'Missing Price', message: 'New Price is required' });
+        return;
+      }
+      if (!formData.old_price) {
+        showModal({ title: 'Missing Price', message: 'Old Price is required' });
+        return;
+      }
+
+      const newPriceValue = parseFloat(formData.new_price);
+      const oldPriceValue = parseFloat(formData.old_price);
+
+      if (newPriceValue <= 0 || oldPriceValue <= 0) {
+        showModal({ title: 'Invalid Prices', message: "Prices must be greater than zero" });
+        return;
+      }
+
+      if (newPriceValue > oldPriceValue) {
+        showModal({ title: 'Pricing Error', message: "New Price cannot be higher than Old Price" });
         return;
       }
 
@@ -166,7 +193,7 @@ const AdminProducts = ({ apiBase }) => {
         headers: { 'auth-token': token },
       });
 
-      alert('Product added successfully');
+      showModal({ title: 'Success', message: 'Product added successfully' });
       setFormData({
         id: '',
         name: '',
@@ -180,18 +207,31 @@ const AdminProducts = ({ apiBase }) => {
       fetchProducts();
     } catch (error) {
       console.error('Error adding product:', error);
-      alert(error.response?.data?.error || 'Failed to add product');
+      showModal({ title: 'Error', message: error.response?.data?.error || 'Failed to add product' });
     }
   };
 
   const handleEditProduct = async (e) => {
     e.preventDefault();
     try {
+      const newPriceValue = parseFloat(formData.new_price);
+      const oldPriceValue = parseFloat(formData.old_price);
+
+      if (newPriceValue <= 0 || oldPriceValue <= 0) {
+        showModal({ title: 'Invalid Prices', message: "Prices must be greater than zero" });
+        return;
+      }
+
+      if (newPriceValue > oldPriceValue) {
+        showModal({ title: 'Pricing Error', message: "New Price cannot be higher than Old Price" });
+        return;
+      }
+
       await axios.put(`${apiBase}/api/admin/products/${editingId}`, formData, {
         headers: { 'auth-token': token },
       });
 
-      alert('Product updated successfully');
+      showModal({ title: 'Success', message: 'Product updated successfully' });
       setEditingId(null);
       setFormData({
         id: '',
@@ -205,23 +245,28 @@ const AdminProducts = ({ apiBase }) => {
       fetchProducts();
     } catch (error) {
       console.error('Error updating product:', error);
-      alert('Failed to update product');
+      showModal({ title: 'Error', message: 'Failed to update product' });
     }
   };
 
   const handleDeleteProduct = async (productId) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
-      try {
-        await axios.delete(`${apiBase}/api/admin/products/${productId}`, {
-          headers: { 'auth-token': token },
-        });
-        alert('Product deleted successfully');
-        fetchProducts();
-      } catch (error) {
-        console.error('Error deleting product:', error);
-        alert('Failed to delete product');
+    showModal({
+      type: 'confirm',
+      title: 'Delete Product',
+      message: 'Are you sure you want to delete this product?',
+      onConfirm: async () => {
+        try {
+          await axios.delete(`${apiBase}/api/admin/products/${productId}`, {
+            headers: { 'auth-token': token },
+          });
+          showModal({ title: 'Success', message: 'Product deleted successfully' });
+          fetchProducts();
+        } catch (error) {
+          console.error('Error deleting product:', error);
+          showModal({ title: 'Error', message: 'Failed to delete product' });
+        }
       }
-    }
+    });
   };
 
   const startEdit = (product) => {
@@ -273,12 +318,11 @@ const AdminProducts = ({ apiBase }) => {
           <div className="form-group">
             <label>Product ID</label>
             <input
-              type="number"
+              type="text"
               name="id"
-              value={formData.id}
-              onChange={handleInputChange}
-              disabled={editingId !== null}
-              required
+              value={editingId !== null ? formData.id : "(Auto-generated)"}
+              disabled={true}
+              style={{ background: '#eee', color: '#666' }}
             />
           </div>
 
@@ -304,7 +348,7 @@ const AdminProducts = ({ apiBase }) => {
           </div>
 
           <div className="form-group">
-            <label>Upload Main Product Image</label>
+            <label>Upload Cover Image</label>
             <div
               className={`upload-box ${dragging === -1 ? 'dragging' : ''}`}
               onDrop={(e) => handleDrop(e, -1)}
@@ -353,7 +397,7 @@ const AdminProducts = ({ apiBase }) => {
                   onDragLeave={handleDragLeave}
                   onClick={() => document.getElementById(`subFileInput-${index}`).click()}
                 >
-                  {formData.sub_images[index] ? (
+                  {formData.sub_images[index] && formData.sub_images[index].length > 1 ? (
                     <>
                       <img 
                         src={formData.sub_images[index]} 
@@ -402,6 +446,7 @@ const AdminProducts = ({ apiBase }) => {
               value={formData.new_price}
               onChange={handleInputChange}
               step="0.01"
+              min="0.01"
               placeholder="Enter new price"
               required
             />
@@ -415,6 +460,7 @@ const AdminProducts = ({ apiBase }) => {
               value={formData.old_price}
               onChange={handleInputChange}
               step="0.01"
+              min="0.01"
               placeholder="Enter old price"
               required
             />
