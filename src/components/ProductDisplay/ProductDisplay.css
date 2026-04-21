@@ -114,13 +114,13 @@ margin-top: 20px;
 font-size: 18px;
 }
 
-.productdisplay-right-size div {
+.productdisplay-right-sizes {
 display: flex;
 gap: 10px;
 margin-top: 10px;
 }
 
-.productdisplay-right-size div div {
+.productdisplay-right-sizes div {
 padding: 8px 16px;
 border: 1px solid #ccc;
 cursor: pointer;
@@ -128,7 +128,8 @@ border-radius: 5px;
 transition: 0.3s;
 }
 
-.productdisplay-right-size div div:hover {
+.productdisplay-right-sizes div:hover,
+.productdisplay-right-sizes div.active {
 background: #ff4141;
 color: white;
 border-color: #ff4141;

@@ -53,8 +53,9 @@ const ShopContextProvider = (props) => {
         }
     }, []);
 
-    const addToCart = (itemId) => {
-        setCartItems((prev) => ({ ...prev, [itemId]: (prev[itemId] || 0) + 1 }));
+    const addToCart = (itemId, size) => {
+        const cartKey = size ? `${itemId}_${size}` : itemId;
+        setCartItems((prev) => ({ ...prev, [cartKey]: (prev[cartKey] || 0) + 1 }));
         const token = localStorage.getItem("auth-token");
         if (token) {
             fetch(`${API_BASE}/api/cart/add`, {
@@ -63,13 +64,18 @@ const ShopContextProvider = (props) => {
                     "Content-Type": "application/json",
                     "auth-token": token,
                 },
-                body: JSON.stringify({ itemId }),
+                body: JSON.stringify({ itemId, size }),
             }).catch((err) => console.error("Failed to add to cart:", err));
         }
     };
 
-    const removeFromCart = (itemId) => {
-        setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] - 1 }));
+    const removeFromCart = (itemId, size) => {
+        const cartKey = size ? `${itemId}_${size}` : itemId;
+        setCartItems((prev) => {
+            const updated = { ...prev, [cartKey]: prev[cartKey] - 1 };
+            if (updated[cartKey] <= 0) delete updated[cartKey];
+            return updated;
+        });
         const token = localStorage.getItem("auth-token");
         if (token) {
             fetch(`${API_BASE}/api/cart/remove`, {
@@ -78,20 +84,21 @@ const ShopContextProvider = (props) => {
                     "Content-Type": "application/json",
                     "auth-token": token,
                 },
-                body: JSON.stringify({ itemId }),
+                body: JSON.stringify({ itemId, size }),
             }).catch((err) => console.error("Failed to remove from cart:", err));
         }
     };
 
     const getTotalCartAmount = () => {
         let totalAmount = 0;
-        for (const item in cartItems) {
-            if (cartItems[item] > 0) {
+        for (const key in cartItems) {
+            if (cartItems[key] > 0) {
+                const itemId = key.includes('_') ? key.split('_')[0] : key;
                 const itemInfo = all_product.find(
-                    (product) => product.id === Number(item)
+                    (product) => product.id === Number(itemId)
                 );
                 if (itemInfo) {
-                    totalAmount += itemInfo.new_price * cartItems[item];
+                    totalAmount += itemInfo.new_price * cartItems[key];
                 }
             }
         }
@@ -100,9 +107,9 @@ const ShopContextProvider = (props) => {
 
     const getTotalCartItems = () => {
         let totalItem = 0;
-        for (const item in cartItems) {
-            if (cartItems[item] > 0) {
-                totalItem += cartItems[item];
+        for (const key in cartItems) {
+            if (cartItems[key] > 0) {
+                totalItem += cartItems[key];
             }
         }
         return totalItem;

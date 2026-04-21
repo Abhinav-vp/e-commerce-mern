@@ -49,12 +49,14 @@ const Navbar = () => {
 
       <div className="nav_cart">
         {isLoggedIn ? (
-          <button onClick={handleLogout}>Logout</button>
+          <>
+            <button onClick={handleLogout}>Logout</button>
+            <Link to={'/cart'}><img className="cart_icon" src={cart_icon} alt="" /></Link>
+            <div className="nav_cart-count">{getTotalCartItems()}</div>
+          </>
         ) : (
           <Link to={'/login'}><button>Login</button></Link>
         )}
-        <Link to={'/cart'}><img className="cart_icon" src={cart_icon} alt="" /></Link>
-        <div className="nav_cart-count">{getTotalCartItems()}</div>
       </div>
 
     </div>

@@ -58,7 +58,40 @@
 .item-prices {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
+}
+
+.item-prices-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.item-add-cart-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: #ff4141;
+  color: white;
+  font-size: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+  box-shadow: 0 2px 8px rgba(255, 65, 65, 0.3);
+}
+
+.item-add-cart-btn:hover {
+  background: #e63a3a;
+  transform: scale(1.1);
+}
+
+.item-add-cart-btn:active {
+  transform: scale(0.95);
 }
 
 .item-price-new {

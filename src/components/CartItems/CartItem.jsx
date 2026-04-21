@@ -12,33 +12,48 @@ const CartItem = () => {
             <div className="cartitems-format-main">
                 <p>Products</p>
                 <p>Title</p>
+                <p>Size</p>
                 <p>Price</p>
                 <p>Quantity</p>
                 <p>Total</p>
                 <p>Remove</p>
             </div>
             <hr />
-            {all_product.map((e) => {
-                if (cartItems[e.id] > 0) {
-                    return <div>
-                        <div className="cartitems-format">
-                            <img 
-                                src={e.thumbnail || e.image} 
-                                alt="" 
-                                className='carticon-product-icon' 
-                                onError={(img) => {
-                                    img.target.src = e.image;
-                                    img.target.onerror = null;
-                                }}
-                            />
-                            <p>{e.name}</p>
-                            <p>{e.new_price}</p>
-                            <button className='cart-items-quantity'>{cartItems[e.id]}</button>
-                            <p>{e.new_price * cartItems[e.id]}</p>
-                            <img className='cartitems-remove-icon' src={remove_icon} alt="" onClick={() => { removeFromCart(e.id) }} />
-                        </div>
-                        <hr />
-                    </div>
+            {Object.entries(cartItems).map(([key, quantity]) => {
+                if (quantity > 0) {
+                    const itemId = key.includes('_') ? key.split('_')[0] : key;
+                    const size = key.includes('_') ? key.split('_')[1] : "";
+                    const e = all_product.find((product) => product.id === Number(itemId));
+                    
+                    if (e) {
+                        return (
+                            <div key={key}>
+                                <div className="cartitems-format">
+                                    <img 
+                                        src={e.thumbnail || e.image} 
+                                        alt="" 
+                                        className='carticon-product-icon' 
+                                        onError={(img) => {
+                                            img.target.src = e.image;
+                                            img.target.onerror = null;
+                                        }}
+                                    />
+                                    <p>{e.name}</p>
+                                    <p>{size}</p>
+                                    <p>{e.new_price}</p>
+                                    <button className='cart-items-quantity'>{quantity}</button>
+                                    <p>{e.new_price * quantity}</p>
+                                    <img 
+                                        className='cartitems-remove-icon' 
+                                        src={remove_icon} 
+                                        alt="" 
+                                        onClick={() => { removeFromCart(itemId, size) }} 
+                                    />
+                                </div>
+                                <hr />
+                            </div>
+                        );
+                    }
                 }
                 return null;
             })}

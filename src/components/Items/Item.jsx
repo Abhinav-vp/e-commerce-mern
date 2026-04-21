@@ -1,8 +1,12 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import './Item.css'
 import { Link } from 'react-router-dom'
+import { ShopContext } from '../../context/ShopContext'
 
 const Item = (props) => {
+  const { addToCart } = useContext(ShopContext);
+  const isLoggedIn = !!localStorage.getItem("auth-token");
+
   return (
     <div className='item'>
       <Link to={`/product/${props.id}`}>
@@ -23,12 +27,25 @@ const Item = (props) => {
         <p className="item-name">{props.name}</p>
 
         <div className="item-prices">
-          <span className="item-price-new">
-            ₹{props.new_price}
-          </span>
-          <span className="item-price-old">
-            ₹{props.old_price}
-          </span>
+          <div className="item-prices-left">
+            <span className="item-price-new">
+              ₹{props.new_price}
+            </span>
+            <span className="item-price-old">
+              ₹{props.old_price}
+            </span>
+          </div>
+          {isLoggedIn && (
+            <button 
+              className="item-add-cart-btn" 
+              onClick={(e) => {
+                e.preventDefault();
+                addToCart(props.id);
+              }}
+            >
+              +
+            </button>
+          )}
         </div>
       </div>
     </div>

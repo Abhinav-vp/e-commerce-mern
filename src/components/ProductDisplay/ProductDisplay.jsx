@@ -7,6 +7,7 @@ import { ShopContext } from '../../context/ShopContext'
 const ProductDisplay = (props) => {
     const { product } = props;
     const { addToCart } = useContext(ShopContext);
+    const [selectedSize, setSelectedSize] = useState("");
     
     // Track which image is currently showing in the main display
     const [mainImage, setMainImage] = useState(product.image);
@@ -86,15 +87,25 @@ The fabric is lightweight yet strong, providing long-lasting wear even after mul
 </div>
           <div className="productdisplay-right-size">
             <h1>Select Size</h1>
-            <div className="productdisplay-right-size">
-                <div>S</div>
-                <div>M</div>
-                <div>L</div>
-                <div>Xl</div>
-                <div>XXl</div>
+            <div className="productdisplay-right-sizes">
+                {['S', 'M', 'L', 'XL', 'XXL'].map((size) => (
+                    <div 
+                        key={size} 
+                        className={selectedSize === size ? "active" : ""}
+                        onClick={() => setSelectedSize(size)}
+                    >
+                        {size}
+                    </div>
+                ))}
             </div>
           </div>
-          <button onClick={()=>{addToCart(product.id)}}>ADD TO CART</button>
+          <button onClick={()=>{
+              if (selectedSize) {
+                  addToCart(product.id, selectedSize);
+              } else {
+                  alert("Please select a size before adding to cart");
+              }
+          }}>ADD TO CART</button>
           <p className='productdisplay-right-category'><span>Category:</span>Women , T-Shirt , Crop Top</p>
           <p className='productdisplay-right-category'><span>Tags:</span>Modern , Latest</p>
       </div>
