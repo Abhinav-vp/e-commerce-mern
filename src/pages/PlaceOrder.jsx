@@ -6,15 +6,19 @@ import { useNavigate } from 'react-router-dom'
 import { useModal } from '../context/ModalContext'
 
 const PlaceOrder = () => {
-    const { getTotalCartAmount, all_product, cartItems } = useContext(ShopContext);
+    const { getTotalCartAmount, all_product, cartItems, promoCode, promoDiscount, clearPromo } = useContext(ShopContext);
     const { showModal } = useModal();
     const navigate = useNavigate();
 
+    const subtotal = getTotalCartAmount();
+    const total = Math.max(0, subtotal - promoDiscount);
+
     useEffect(() => {
-        if (getTotalCartAmount() === 0) {
+        if (subtotal === 0) {
             navigate('/cart');
         }
-    }, [getTotalCartAmount, navigate]);
+    }, [subtotal, navigate]);
+
     const [method, setMethod] = useState('cod');
     const [formData, setFormData] = useState({
         firstName: '',
@@ -46,6 +50,7 @@ const PlaceOrder = () => {
                 try {
                     const { data } = await axios.post(`${API_BASE}/api/orders/verifyRazorpay`, { ...response, orderId: order.receipt }, { headers: { 'auth-token': localStorage.getItem('auth-token') } });
                     if (data.success) {
+                        clearPromo();
                         navigate('/myorders');
                     }
                 } catch (error) {
@@ -83,13 +88,15 @@ const PlaceOrder = () => {
             let orderData = {
                 address: formData,
                 items: orderItems,
-                amount: getTotalCartAmount(),
-                paymentMethod: method === 'cod' ? 'COD' : 'Razorpay'
+                amount: subtotal,
+                paymentMethod: method === 'cod' ? 'COD' : 'Razorpay',
+                promoCode: promoCode || undefined,
             }
 
             const response = await axios.post(`${API_BASE}/api/orders/place`, orderData, { headers: { 'auth-token': localStorage.getItem('auth-token') } });
 
             if (response.data.success) {
+                clearPromo();
                 if (method === 'cod') {
                     navigate('/myorders');
                 } else {
@@ -131,9 +138,18 @@ const PlaceOrder = () => {
                     <div>
                         <div className="cartitems-total-item">
                             <p>Subtotal</p>
-                            <p>${getTotalCartAmount()}</p>
+                            <p>${subtotal.toFixed(2)}</p>
                         </div>
                         <hr />
+                        {promoDiscount > 0 && (
+                            <>
+                                <div className="cartitems-total-item promo-discount-row">
+                                    <p>Discount ({promoCode})</p>
+                                    <p className="discount-value">-${promoDiscount.toFixed(2)}</p>
+                                </div>
+                                <hr />
+                            </>
+                        )}
                         <div className="cartitems-total-item">
                             <p>Shipping Fee</p>
                             <p>Free</p>
@@ -141,7 +157,7 @@ const PlaceOrder = () => {
                         <hr />
                         <div className="cartitems-total-item">
                             <h3>Total</h3>
-                            <h3>${getTotalCartAmount()}</h3>
+                            <h3>${total.toFixed(2)}</h3>
                         </div>
                     </div>
                 </div>

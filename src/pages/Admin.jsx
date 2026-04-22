@@ -3,6 +3,7 @@ import { ShopContext } from '../context/ShopContext';
 import AdminProducts from '../components/AdminPanel/AdminProducts';
 import AdminUsers from '../components/AdminPanel/AdminUsers';
 import AdminOrders from '../components/AdminPanel/AdminOrders';
+import AdminPromoCodes from '../components/AdminPanel/AdminPromoCodes';
 import { useModal } from '../context/ModalContext';
 import '../components/AdminPanel/AdminPanel.css';
 
@@ -78,6 +79,12 @@ const Admin = () => {
             >
               📋 Orders
             </button>
+            <button
+              className={`nav-btn ${activeTab === 'promos' ? 'active' : ''}`}
+              onClick={() => setActiveTab('promos')}
+            >
+              🏷️ Promo Codes
+            </button>
           </nav>
 
           <div className="admin-stats">
@@ -103,6 +110,7 @@ const Admin = () => {
           {activeTab === 'products' && <AdminProducts apiBase={apiBase} />}
           {activeTab === 'users' && <AdminUsers apiBase={apiBase} />}
           {activeTab === 'orders' && <AdminOrders apiBase={apiBase} />}
+          {activeTab === 'promos' && <AdminPromoCodes apiBase={apiBase} />}
         </div>
       </div>
     </div>

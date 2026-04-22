@@ -8,6 +8,8 @@ export const API_BASE = process.env.REACT_APP_API_BASE || `http://${window.locat
 const ShopContextProvider = (props) => {
     const [all_product, setAllProduct] = useState([]);
     const [cartItems, setCartItems] = useState({});
+    const [promoCode, setPromoCode] = useState(null);
+    const [promoDiscount, setPromoDiscount] = useState(0);
 
     // Fetch all products on mount
     useEffect(() => {
@@ -115,6 +117,16 @@ const ShopContextProvider = (props) => {
         return totalItem;
     };
 
+    const applyPromo = (code, discount) => {
+        setPromoCode(code);
+        setPromoDiscount(discount);
+    };
+
+    const clearPromo = () => {
+        setPromoCode(null);
+        setPromoDiscount(0);
+    };
+
     const contextValue = {
         getTotalCartItems,
         getTotalCartAmount,
@@ -122,6 +134,10 @@ const ShopContextProvider = (props) => {
         cartItems,
         addToCart,
         removeFromCart,
+        promoCode,
+        promoDiscount,
+        applyPromo,
+        clearPromo,
     };
 
     return (

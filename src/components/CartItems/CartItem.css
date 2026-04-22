@@ -174,6 +174,52 @@ background: #000;
 color: white;
 border-radius: 6px;
 cursor: pointer;
+transition: 0.3s;
+}
+
+.cartitem-promobox button:hover {
+background: #333;
+}
+
+.cartitem-promobox button:disabled {
+background: #999;
+cursor: not-allowed;
+}
+
+.promo-remove-btn {
+background: #ff4141 !important;
+}
+
+.promo-remove-btn:hover {
+background: #e63a3a !important;
+}
+
+.promo-message {
+font-size: 13px;
+font-weight: 500;
+margin-top: 4px;
+}
+
+.promo-success {
+color: #22c55e;
+}
+
+.promo-error {
+color: #ef4444;
+}
+
+.promo-discount-row p {
+color: #22c55e;
+font-weight: 600;
+}
+
+.discount-value {
+color: #22c55e !important;
+}
+
+.cartitem-promobox input:disabled {
+background: #f0f0f0;
+color: #888;
 }
 
 /* ===== RESPONSIVE ===== */
