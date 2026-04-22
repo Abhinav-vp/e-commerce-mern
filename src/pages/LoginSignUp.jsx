@@ -32,7 +32,11 @@ const LoginSignUp = () => {
 
       if (data.success) {
         localStorage.setItem("auth-token", data.token);
-        window.location.replace("/");
+        if (data.isAdmin) {
+          window.location.replace("/admin");
+        } else {
+          window.location.replace("/");
+        }
       } else {
         setError(data.errors || "Something went wrong");
       }

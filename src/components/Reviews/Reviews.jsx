@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback, useContext } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useModal } from '../../context/ModalContext';
-import { API_BASE, ShopContext } from '../../context/ShopContext';
+import { API_BASE } from '../../context/ShopContext';
 import star_icon from '../Assets/Frontend_Assets/star_icon.png';
 import star_dull_icon from '../Assets/Frontend_Assets/star_dull_icon.png';
 import './Reviews.css';
