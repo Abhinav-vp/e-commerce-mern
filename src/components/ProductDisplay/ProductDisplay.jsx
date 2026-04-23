@@ -8,7 +8,9 @@ import Reviews from '../Reviews/Reviews'
 
 const ProductDisplay = (props) => {
     const { product } = props;
-    const { addToCart } = useContext(ShopContext);
+    const { addToCart, toggleWishlist, isInWishlist } = useContext(ShopContext);
+    const isLoggedIn = !!localStorage.getItem("auth-token");
+    const isWishlisted = isInWishlist(product?.id);
     const { showModal } = useModal();
     const [selectedSize, setSelectedSize] = useState("");
     const [quantity, setQuantity] = useState(1);
@@ -122,6 +124,17 @@ The fabric is lightweight yet strong, providing long-lasting wear even after mul
                   showModal({ title: 'Size Required', message: "Please select a size before adding to cart" });
               }
           }}>ADD TO CART</button>
+          
+          {isLoggedIn && (
+              <button 
+                  className={`wishlist-btn ${isWishlisted ? 'active' : ''}`} 
+                  onClick={() => toggleWishlist(product.id)}
+              >
+                  <span className="heart-icon">{isWishlisted ? '♥' : '♡'}</span>
+                  {isWishlisted ? 'SAVED' : 'SAVE TO WISHLIST'}
+              </button>
+          )}
+
           <p className='productdisplay-right-category'><span>Category:</span>Women , T-Shirt , Crop Top</p>
           <p className='productdisplay-right-category'><span>Tags:</span>Modern , Latest</p>
       </div>

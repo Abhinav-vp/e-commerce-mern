@@ -4,8 +4,9 @@ import { Link } from 'react-router-dom'
 import { ShopContext } from '../../context/ShopContext'
 
 const Item = (props) => {
-  const { addToCart } = useContext(ShopContext);
+  const { addToCart, toggleWishlist, isInWishlist } = useContext(ShopContext);
   const isLoggedIn = !!localStorage.getItem("auth-token");
+  const isWishlisted = isInWishlist(props.id);
 
   return (
     <div className='item'>
@@ -22,6 +23,19 @@ const Item = (props) => {
           />
         </div>
       </Link>
+
+      {isLoggedIn && (
+        <button 
+          className={`item-wishlist-btn ${isWishlisted ? 'active' : ''}`}
+          onClick={(e) => {
+            e.preventDefault();
+            toggleWishlist(props.id);
+          }}
+          aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+        >
+          {isWishlisted ? '♥' : '♡'}
+        </button>
+      )}
 
       <div className="item-details">
         <p className="item-name">{props.name}</p>

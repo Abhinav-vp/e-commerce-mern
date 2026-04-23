@@ -195,6 +195,36 @@ border-color: #ff4141;
   background: #e63a3a;
 }
 
+.wishlist-btn {
+    margin-top: 15px;
+    padding: 12px 30px;
+    background: white;
+    color: #ff4141;
+    border: 1px solid #ff4141;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: 0.3s;
+    width: fit-content;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.wishlist-btn:hover {
+    background: #fff5f5;
+}
+
+.wishlist-btn.active {
+    background: #ff4141;
+    color: white;
+}
+
+.heart-icon {
+    font-size: 18px;
+}
+
 /* ===== CATEGORY ===== */
 .productdisplay-right-category {
 margin-top: 10px;

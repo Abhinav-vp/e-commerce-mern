@@ -11,6 +11,8 @@ import PlaceOrder from "./pages/PlaceOrder";
 import MyOrders from "./pages/MyOrders";
 import TrackOrder from "./pages/TrackOrder";
 
+import Wishlist from "./pages/Wishlist";
+
 import Footer from "./components/Footer/Footer";
 import men_banner from "./components/Assets/Frontend_Assets/banner_mens.png";
 import women_banner from "./components/Assets/Frontend_Assets/banner_women.png";
@@ -43,6 +45,7 @@ function App() {
               <Route path=":productId" element={<Product />} />
             </Route>
             <Route path="/cart" element={<Cart />} />
+            <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/placeorder" element={<PlaceOrder />} />
             <Route path="/myorders" element={<MyOrders />} />
             <Route path="/trackorder/:orderId" element={<TrackOrder />} />

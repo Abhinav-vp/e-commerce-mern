@@ -10,7 +10,7 @@ const Navbar = () => {
   const [menu, setMenu] = useState("shop");
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const { getTotalCartItems } = useContext(ShopContext);
+  const { getTotalCartItems, wishlistItems } = useContext(ShopContext);
 
   const toggleMenu = () => setMenuOpen(prev => !prev);
 
@@ -51,8 +51,16 @@ const Navbar = () => {
         {isLoggedIn ? (
           <>
             <button onClick={handleLogout}>Logout</button>
-            <Link to={'/cart'}><img className="cart_icon" src={cart_icon} alt="" /></Link>
-            <div className="nav_cart-count">{getTotalCartItems()}</div>
+            <div className="nav_wishlist_container">
+              <Link to={'/wishlist'} className="nav_wishlist_link">
+                <span className="heart_icon">♥</span>
+              </Link>
+              {wishlistItems.length > 0 && <div className="nav_wishlist-count">{wishlistItems.length}</div>}
+            </div>
+            <div className="nav_cart_container">
+              <Link to={'/cart'}><img className="cart_icon" src={cart_icon} alt="" /></Link>
+              <div className="nav_cart-count">{getTotalCartItems()}</div>
+            </div>
           </>
         ) : (
           <Link to={'/login'}><button>Login</button></Link>

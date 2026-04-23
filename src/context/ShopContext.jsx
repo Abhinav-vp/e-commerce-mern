@@ -10,6 +10,7 @@ const ShopContextProvider = (props) => {
     const [cartItems, setCartItems] = useState({});
     const [promoCode, setPromoCode] = useState(null);
     const [promoDiscount, setPromoDiscount] = useState(0);
+    const [wishlistItems, setWishlistItems] = useState([]);
 
     // Fetch all products on mount
     useEffect(() => {
@@ -52,6 +53,14 @@ const ShopContextProvider = (props) => {
                 .then((res) => res.json())
                 .then((data) => setCartItems(data))
                 .catch((err) => console.error("Failed to fetch cart:", err));
+
+            fetch(`${API_BASE}/api/wishlist`, {
+                headers: { "auth-token": token },
+                signal: AbortSignal.timeout(3000)
+            })
+                .then((res) => res.json())
+                .then((data) => setWishlistItems(Array.isArray(data) ? data : []))
+                .catch((err) => console.error("Failed to fetch wishlist:", err));
         }
     }, []);
 
@@ -127,6 +136,30 @@ const ShopContextProvider = (props) => {
         setPromoDiscount(0);
     };
 
+    const toggleWishlist = (itemId) => {
+        const token = localStorage.getItem("auth-token");
+        if (!token) return;
+
+        setWishlistItems((prev) => 
+            prev.includes(Number(itemId)) 
+                ? prev.filter(id => id !== Number(itemId)) 
+                : [...prev, Number(itemId)]
+        );
+
+        fetch(`${API_BASE}/api/wishlist/toggle`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "auth-token": token,
+            },
+            body: JSON.stringify({ itemId }),
+        }).catch((err) => console.error("Failed to toggle wishlist:", err));
+    };
+
+    const isInWishlist = (itemId) => {
+        return wishlistItems.includes(Number(itemId));
+    };
+
     const contextValue = {
         getTotalCartItems,
         getTotalCartAmount,
@@ -138,6 +171,9 @@ const ShopContextProvider = (props) => {
         promoDiscount,
         applyPromo,
         clearPromo,
+        wishlistItems,
+        toggleWishlist,
+        isInWishlist,
     };
 
     return (

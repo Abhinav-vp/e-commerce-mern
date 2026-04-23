@@ -94,8 +94,8 @@ width: 28px;
 cursor: pointer;
 }
 
-/* cart count badge */
-.nav_cart-count {
+/* badge common */
+.nav_cart-count, .nav_wishlist-count {
 width: 20px;
 height: 20px;
 background: #ff4141;
@@ -104,10 +104,28 @@ border-radius: 50%;
 display: flex;
 align-items: center;
 justify-content: center;
-font-size: 12px;
+font-size: 11px;
 position: absolute;
-margin-left:125px;
-margin-top: -25px;
+top: -8px;
+right: -10px;
+}
+
+.nav_cart_container, .nav_wishlist_container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.heart_icon {
+    font-size: 24px;
+    color: #ff4141;
+    cursor: pointer;
+}
+
+.nav_wishlist_link {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
 }
 
 .nav_hamburger {
@@ -165,8 +183,8 @@ font-size: 18px;
 gap: 15px;
 }
 
-.nav_cart-count {
-margin-left: 55px;
+.nav_cart-count, .nav_wishlist-count {
+margin: 0;
 }
 }
 
