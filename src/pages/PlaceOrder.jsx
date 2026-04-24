@@ -11,7 +11,24 @@ const PlaceOrder = () => {
     const navigate = useNavigate();
 
     const subtotal = getTotalCartAmount();
-    const total = Math.max(0, subtotal - promoDiscount);
+    const [userPoints, setUserPoints] = useState(0);
+    const [usePoints, setUsePoints] = useState(false);
+
+    useEffect(() => {
+        const fetchUserPoints = async () => {
+            const response = await fetch(`${API_BASE}/api/auth/me`, {
+                headers: { 'auth-token': localStorage.getItem('auth-token') }
+            });
+            const data = await response.json();
+            if (data.success) {
+                setUserPoints(data.user.rewardPoints);
+            }
+        };
+        fetchUserPoints();
+    }, []);
+
+    const pointsDiscount = usePoints ? Math.min(userPoints / 10, (subtotal - promoDiscount) / 2) : 0;
+    const total = Math.max(0, subtotal - promoDiscount - pointsDiscount);
 
     useEffect(() => {
         if (subtotal === 0) {
@@ -91,6 +108,7 @@ const PlaceOrder = () => {
                 amount: subtotal,
                 paymentMethod: method === 'cod' ? 'COD' : 'Razorpay',
                 promoCode: promoCode || undefined,
+                usePoints: usePoints,
             }
 
             const response = await axios.post(`${API_BASE}/api/orders/place`, orderData, { headers: { 'auth-token': localStorage.getItem('auth-token') } });
@@ -150,6 +168,20 @@ const PlaceOrder = () => {
                                 <hr />
                             </>
                         )}
+                        {userPoints > 0 && (
+                            <div className="cartitems-total-item reward-points-section">
+                                <div className="points-info">
+                                    <p>Use {userPoints} Reward Points</p>
+                                    <p className="points-discount">-${pointsDiscount.toFixed(2)}</p>
+                                </div>
+                                <input 
+                                    type="checkbox" 
+                                    checked={usePoints} 
+                                    onChange={(e) => setUsePoints(e.target.checked)} 
+                                />
+                            </div>
+                        )}
+                        <hr />
                         <div className="cartitems-total-item">
                             <p>Shipping Fee</p>
                             <p>Free</p>

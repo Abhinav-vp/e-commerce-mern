@@ -45,6 +45,7 @@ const Navbar = () => {
         <li onClick={() => handleNavClick("mens")}><Link style={{ textDecoration: 'none' }} to={'/mens'}>Men</Link> {menu === "mens" ? <hr /> : <></>}</li>
         <li onClick={() => handleNavClick("womens")}><Link style={{ textDecoration: 'none' }} to={'/womens'}>Women</Link> {menu === "womens" ? <hr /> : <></>}</li>
         <li onClick={() => handleNavClick("kids")}><Link style={{ textDecoration: 'none' }} to={'/kids'}>Kids</Link> {menu === "kids" ? <hr /> : <></>}</li>
+        <li onClick={() => handleNavClick("referral")}><Link style={{ textDecoration: 'none' }} to={'/referral'}>Refer & Earn</Link> {menu === "referral" ? <hr /> : <></>}</li>
       </ul>
 
       <div className="nav_cart">

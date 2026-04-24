@@ -9,6 +9,7 @@ const LoginSignUp = () => {
     username: "",
     email: "",
     password: "",
+    referralCode: "",
   });
   const [error, setError] = useState("");
 
@@ -73,6 +74,15 @@ const LoginSignUp = () => {
             type="password"
             placeholder="Enter Password"
           />
+          {state === "Sign Up" && (
+            <input
+              name="referralCode"
+              value={formData.referralCode}
+              onChange={changeHandler}
+              type="text"
+              placeholder="Referral Code (Optional)"
+            />
+          )}
         </div>
         {error && <p style={{ color: "red", fontSize: "14px" }}>{error}</p>}
         <button onClick={handleSubmit}>Continue</button>

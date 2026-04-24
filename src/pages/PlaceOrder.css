@@ -85,6 +85,35 @@
     background: #e63a3a;
 }
 
+.reward-points-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fdf2f2;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin: 10px 0;
+    border: 1px dashed #ff4141;
+}
+
+.points-info p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.points-discount {
+    color: #ff4141;
+    font-weight: bold;
+}
+
+.reward-points-section input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #ff4141;
+}
+
 @media (max-width: 900px) {
     .place-order {
         flex-direction: column;

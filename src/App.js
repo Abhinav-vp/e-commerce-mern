@@ -12,6 +12,7 @@ import MyOrders from "./pages/MyOrders";
 import TrackOrder from "./pages/TrackOrder";
 
 import Wishlist from "./pages/Wishlist";
+import Referral from "./pages/Referral";
 
 import Footer from "./components/Footer/Footer";
 import men_banner from "./components/Assets/Frontend_Assets/banner_mens.png";
@@ -49,6 +50,7 @@ function App() {
             <Route path="/placeorder" element={<PlaceOrder />} />
             <Route path="/myorders" element={<MyOrders />} />
             <Route path="/trackorder/:orderId" element={<TrackOrder />} />
+            <Route path="/referral" element={<Referral />} />
 
             <Route path="/login" element={<LoginSignUp />} />
             <Route path="/admin" element={<Admin />} />
