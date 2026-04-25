@@ -20,6 +20,7 @@ import women_banner from "./components/Assets/Frontend_Assets/banner_women.png";
 import kid_banner from "./components/Assets/Frontend_Assets/banner_kids.png";
 import { ModalProvider } from "./context/ModalContext";
 import Modal from "./components/Modal/Modal";
+import ChatWidget from "./components/Chat/ChatWidget";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <BrowserRouter>
           <Navbar />
           <Modal />
+          <ChatWidget />
           <Routes>
             <Route path="/" element={<Shop />} />
             <Route

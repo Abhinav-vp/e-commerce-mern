@@ -4,6 +4,7 @@ import AdminProducts from '../components/AdminPanel/AdminProducts';
 import AdminUsers from '../components/AdminPanel/AdminUsers';
 import AdminOrders from '../components/AdminPanel/AdminOrders';
 import AdminPromoCodes from '../components/AdminPanel/AdminPromoCodes';
+import AdminSupport from '../components/AdminPanel/AdminSupport';
 import { useModal } from '../context/ModalContext';
 import '../components/AdminPanel/AdminPanel.css';
 
@@ -85,6 +86,12 @@ const Admin = () => {
             >
               🏷️ Promo Codes
             </button>
+            <button
+              className={`nav-btn ${activeTab === 'support' ? 'active' : ''}`}
+              onClick={() => setActiveTab('support')}
+            >
+              💬 Live Support
+            </button>
           </nav>
 
           <div className="admin-stats">
@@ -111,6 +118,7 @@ const Admin = () => {
           {activeTab === 'users' && <AdminUsers apiBase={apiBase} />}
           {activeTab === 'orders' && <AdminOrders apiBase={apiBase} />}
           {activeTab === 'promos' && <AdminPromoCodes apiBase={apiBase} />}
+          {activeTab === 'support' && <AdminSupport apiBase={apiBase} />}
         </div>
       </div>
     </div>
