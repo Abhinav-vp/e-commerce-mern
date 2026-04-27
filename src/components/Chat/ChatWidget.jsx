@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { io } from "socket.io-client";
 import "./ChatWidget.css";
 
@@ -14,29 +14,11 @@ const ChatWidget = () => {
   const apiBase = process.env.REACT_APP_API_BASE || `http://${window.location.hostname}:7000`;
   const token = localStorage.getItem("auth-token");
 
-  useEffect(() => {
-    if (token) {
-      fetchUser();
-    }
-  }, [token]);
+  const scrollToBottom = useCallback(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
 
-  const fetchUser = async () => {
-    try {
-      const res = await fetch(`${apiBase}/api/auth/me`, {
-        headers: { "auth-token": token },
-      });
-      const data = await res.json();
-      if (data.success) {
-        setUser(data.user);
-        initSocket(data.user);
-        fetchHistory();
-      }
-    } catch (err) {
-      console.error("Error fetching user for chat:", err);
-    }
-  };
-
-  const fetchHistory = async () => {
+  const fetchHistory = useCallback(async () => {
     try {
       const res = await fetch(`${apiBase}/api/chat/history`, {
         headers: { "auth-token": token },
@@ -48,44 +30,79 @@ const ChatWidget = () => {
     } catch (err) {
       console.error("Error fetching chat history:", err);
     }
-  };
+  }, [apiBase, token]);
 
-  const initSocket = (userData) => {
-    if (socketRef.current) return;
-
-    const socket = io(apiBase);
-    socketRef.current = socket;
-
-    socket.on("connect", () => {
-      socket.emit("join", userData._id);
-    });
-
-    socket.on("receiveMessage", (message) => {
-      setMessages((prev) => [...prev, message]);
-      if (!isOpen) {
-        setUnreadCount((prev) => prev + 1);
+  const fetchUser = useCallback(async () => {
+    try {
+      const res = await fetch(`${apiBase}/api/auth/me`, {
+        headers: { "auth-token": token },
+      });
+      const data = await res.json();
+      if (data.success) {
+        setUser(data.user);
+        fetchHistory();
       }
-    });
+    } catch (err) {
+      console.error("Error fetching user for chat:", err);
+    }
+  }, [apiBase, token, fetchHistory]);
 
-    socket.on("messageSent", (message) => {
-      // Message saved successfully, we already added it locally maybe?
-      // Actually let's just use the server broadcast to keep things synced
-    });
-  };
+  useEffect(() => {
+    if (token) {
+      fetchUser();
+    }
+  }, [token, fetchUser]);
+
+  useEffect(() => {
+    if (user && !socketRef.current) {
+      const socket = io(apiBase);
+      socketRef.current = socket;
+
+      socket.on("connect", () => {
+        socket.emit("join", user._id);
+      });
+
+      socket.on("receiveMessage", (message) => {
+        setMessages((prev) => [...prev, message]);
+        // We need to check isOpen here. Since this is an event handler set once, 
+        // we should use a ref for isOpen if we want to avoid recreating the handler.
+      });
+
+      return () => {
+        socket.disconnect();
+        socketRef.current = null;
+      };
+    }
+  }, [user, apiBase]);
+
+  // Use a ref for isOpen to be accessed in the socket handler without recreating it
+  const isOpenRef = useRef(isOpen);
+  useEffect(() => {
+    isOpenRef.current = isOpen;
+  }, [isOpen]);
+
+  // Re-attach or handle receiveMessage with ref-based logic
+  useEffect(() => {
+    if (socketRef.current) {
+      socketRef.current.off("receiveMessage");
+      socketRef.current.on("receiveMessage", (message) => {
+        setMessages((prev) => [...prev, message]);
+        if (!isOpenRef.current) {
+          setUnreadCount((prev) => prev + 1);
+        }
+      });
+    }
+  }, [user]); // Re-run when user (and thus socket) changes
 
   useEffect(() => {
     if (isOpen) {
       setUnreadCount(0);
       scrollToBottom();
     }
-  }, [isOpen, messages]);
-
-  const scrollToBottom = () => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  }, [isOpen, messages, scrollToBottom]);
 
   const handleSend = () => {
-    if (!input.trim() || !user) return;
+    if (!input.trim() || !user || !socketRef.current) return;
 
     const messageData = {
       senderId: user._id,
@@ -96,7 +113,6 @@ const ChatWidget = () => {
 
     socketRef.current.emit("sendMessage", messageData);
     
-    // Optimistic update
     setMessages(prev => [...prev, { ...messageData, timestamp: new Date(), _id: Date.now() }]);
     setInput("");
   };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { io } from 'socket.io-client';
 import './AdminSupport.css';
 
@@ -12,44 +12,25 @@ const AdminSupport = ({ apiBase }) => {
   const chatEndRef = useRef(null);
   const token = localStorage.getItem('auth-token');
 
-  useEffect(() => {
-    fetchAdmin();
-    fetchActiveChats();
+  const scrollToBottom = useCallback(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
-  const fetchAdmin = async () => {
-    try {
-      const res = await fetch(`${apiBase}/api/auth/me`, {
-        headers: { 'auth-token': token },
-      });
-      const data = await res.json();
-      if (data.success) {
-        setAdmin(data.user);
-        initSocket();
-      }
-    } catch (err) {
-      console.error('Error fetching admin:', err);
-    }
-  };
-
-  const fetchActiveChats = async () => {
+  const fetchActiveChats = useCallback(async () => {
     try {
       const res = await fetch(`${apiBase}/api/chat/admin/users`, {
         headers: { 'auth-token': token },
       });
       const data = await res.json();
       if (data.success) {
-        // userIds is an array of strings
-        // In a real app, we'd fetch user details for each ID
-        // For now, we'll just show IDs as user labels
         setConversations(data.userIds.map(id => ({ id, name: `User ${id.slice(-4)}` })));
       }
     } catch (err) {
       console.error('Error fetching active chats:', err);
     }
-  };
+  }, [apiBase, token]);
 
-  const fetchHistory = async (userId) => {
+  const fetchHistory = useCallback(async (userId) => {
     try {
       const res = await fetch(`${apiBase}/api/chat/admin/history/${userId}`, {
         headers: { 'auth-token': token },
@@ -62,55 +43,84 @@ const AdminSupport = ({ apiBase }) => {
     } catch (err) {
       console.error('Error fetching history:', err);
     }
-  };
+  }, [apiBase, token, scrollToBottom]);
 
-  const initSocket = () => {
-    if (socketRef.current) return;
-    const socket = io(apiBase);
-    socketRef.current = socket;
-
-    socket.on('connect', () => {
-      socket.emit('joinAdmin');
-    });
-
-    socket.on('receiveMessage', (message) => {
-      // If it's for the currently selected user, add it to messages
-      if (selectedUser && (message.senderId === selectedUser.id || message.receiverId === selectedUser.id)) {
-        setMessages((prev) => [...prev, message]);
-      } else {
-        // If it's a new conversation, add to list
-        setConversations(prev => {
-          if (!prev.find(c => c.id === message.senderId)) {
-            return [...prev, { id: message.senderId, name: `User ${message.senderId.slice(-4)}` }];
-          }
-          return prev;
-        });
+  const fetchAdmin = useCallback(async () => {
+    try {
+      const res = await fetch(`${apiBase}/api/auth/me`, {
+        headers: { 'auth-token': token },
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAdmin(data.user);
+        // We'll call initSocket here, but initSocket shouldn't be a dependency of fetchAdmin
+        // unless we want to recreate it.
       }
-    });
+    } catch (err) {
+      console.error('Error fetching admin:', err);
+    }
+  }, [apiBase, token]);
 
-    socket.on('messageSent', (message) => {
-      if (selectedUser && message.receiverId === selectedUser.id) {
-        setMessages((prev) => [...prev, message]);
-      }
-    });
-  };
+  useEffect(() => {
+    fetchAdmin();
+    fetchActiveChats();
+  }, [fetchAdmin, fetchActiveChats]);
 
   useEffect(() => {
     if (selectedUser) {
       fetchHistory(selectedUser.id);
     }
-  }, [selectedUser]);
+  }, [selectedUser, fetchHistory]);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, scrollToBottom]);
 
-  const scrollToBottom = () => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  // Re-define initSocket properly with refs to avoid closure issues
+  const selectedUserRef = useRef(selectedUser);
+  useEffect(() => {
+    selectedUserRef.current = selectedUser;
+  }, [selectedUser]);
+
+  useEffect(() => {
+    if (admin && !socketRef.current) {
+      const socket = io(apiBase);
+      socketRef.current = socket;
+
+      socket.on('connect', () => {
+        socket.emit('joinAdmin');
+      });
+
+      socket.on('receiveMessage', (message) => {
+        const curSelected = selectedUserRef.current;
+        if (curSelected && (message.senderId === curSelected.id || message.receiverId === curSelected.id)) {
+          setMessages((prev) => [...prev, message]);
+        } else {
+          setConversations(prev => {
+            if (!prev.find(c => c.id === message.senderId)) {
+              return [...prev, { id: message.senderId, name: `User ${message.senderId.slice(-4)}` }];
+            }
+            return prev;
+          });
+        }
+      });
+
+      socket.on('messageSent', (message) => {
+        const curSelected = selectedUserRef.current;
+        if (curSelected && message.receiverId === curSelected.id) {
+          setMessages((prev) => [...prev, message]);
+        }
+      });
+
+      return () => {
+        socket.disconnect();
+        socketRef.current = null;
+      };
+    }
+  }, [admin, apiBase]);
 
   const handleSend = () => {
-    if (!input.trim() || !selectedUser || !admin) return;
+    if (!input.trim() || !selectedUser || !admin || !socketRef.current) return;
 
     const messageData = {
       senderId: admin._id,
@@ -122,7 +132,6 @@ const AdminSupport = ({ apiBase }) => {
 
     socketRef.current.emit('sendMessage', messageData);
     
-    // Optimistic update
     setMessages(prev => [...prev, { ...messageData, timestamp: new Date(), _id: Date.now() }]);
     setInput('');
   };
