@@ -95,17 +95,22 @@ const AdminProducts = ({ apiBase }) => {
 
       if (res.data.success) {
         const fullUrl = getImageUrl(res.data.image_url);
-        console.log("📸 Image uploaded. URL:", fullUrl);
+        const thumbUrl = getImageUrl(res.data.thumbnail_url);
+        console.log("📸 Image uploaded. Main:", fullUrl, "Thumb:", thumbUrl);
+        
         if (index === -1) {
           setFormData((prev) => ({
             ...prev,
             image: res.data.image_url,
+            thumbnail: res.data.thumbnail_url,
           }));
         } else {
           setFormData((prev) => {
             const nextSubImages = [...prev.sub_images];
+            const nextSubThumbs = [...(prev.sub_thumbnails || [])];
             nextSubImages[index] = res.data.image_url;
-            return { ...prev, sub_images: nextSubImages };
+            nextSubThumbs[index] = res.data.thumbnail_url;
+            return { ...prev, sub_images: nextSubImages, sub_thumbnails: nextSubThumbs };
           });
         }
       } else {
