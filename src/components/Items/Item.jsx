@@ -14,11 +14,19 @@ const Item = (props) => {
         <div className="item-img-container">
           <img 
             onClick={() => window.scrollTo(0, 0)} 
-            src={props.thumbnail || props.image} 
+            src={props.thumbnail || props.image || 'https://images.rawpixel.com/image_png_800/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvbHIvczg0LXRlZC0xNTg3OWEucG5n.png'} 
             alt={props.name} 
             onError={(e) => {
-              e.target.src = props.image;
-              e.target.onerror = null;
+              if (e.target.src.includes('rawpixel.com')) {
+                e.target.onerror = null;
+                return;
+              }
+              if (e.target.src !== props.image && props.image) {
+                e.target.src = props.image;
+              } else {
+                e.target.src = 'https://images.rawpixel.com/image_png_800/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvbHIvczg0LXRlZC0xNTg3OWEucG5n.png';
+                e.target.onerror = null;
+              }
             }}
           />
         </div>

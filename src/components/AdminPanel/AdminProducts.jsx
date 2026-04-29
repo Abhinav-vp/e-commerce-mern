@@ -22,6 +22,14 @@ const AdminProducts = ({ apiBase }) => {
   const [dragging, setDragging] = useState(null); // -1 for main, 0-3 for sub
   const [uploading, setUploading] = useState(null); // index or 'main'
   const [imageToCrop, setImageToCrop] = useState(null);
+  
+  const getImageUrl = useCallback((url) => {
+    if (!url) return "";
+    if (url.startsWith("http")) return url;
+    const base = apiBase.endsWith("/") ? apiBase.slice(0, -1) : apiBase;
+    const path = url.startsWith("/") ? url : `/${url}`;
+    return `${base}${path}`;
+  }, [apiBase]);
 
   const token = localStorage.getItem('auth-token');
 
@@ -39,14 +47,14 @@ const AdminProducts = ({ apiBase }) => {
           ? (product.image.startsWith('http') ? product.image : `${apiBase}${product.image}`)
           : product.image,
         sub_images: Array.from({ length: 4 }, (_, i) => {
-          const url = product.sub_images && product.sub_images[i];
+          const url = (product.sub_images && product.sub_images[i]) || '';
           return url ? (url.startsWith('http') ? url : `${apiBase}${url}`) : '';
         }),
         thumbnail: (product.thumbnail && !product.thumbnail.includes("undefined"))
           ? (product.thumbnail.startsWith('http') ? product.thumbnail : `${apiBase}${product.thumbnail}`)
           : undefined,
         sub_thumbnails: Array.from({ length: 4 }, (_, i) => {
-          const url = product.sub_thumbnails && product.sub_thumbnails[i];
+          const url = (product.sub_thumbnails && product.sub_thumbnails[i]) || '';
           return url ? (url.startsWith('http') ? url : `${apiBase}${url}`) : '';
         }),
       }));
@@ -86,6 +94,8 @@ const AdminProducts = ({ apiBase }) => {
       const res = await axios.post(`${apiBase}/upload`, data);
 
       if (res.data.success) {
+        const fullUrl = getImageUrl(res.data.image_url);
+        console.log("📸 Image uploaded. URL:", fullUrl);
         if (index === -1) {
           setFormData((prev) => ({
             ...prev,
@@ -98,13 +108,13 @@ const AdminProducts = ({ apiBase }) => {
             return { ...prev, sub_images: nextSubImages };
           });
         }
-        console.log("Image uploaded successfully:", res.data.image_url);
       } else {
         showModal({ title: 'Upload Failed', message: "Image upload failed: " + (res.data.message || "Unknown error") });
       }
     } catch (error) {
       console.error("Image upload failed:", error);
-      showModal({ title: 'Upload Error', message: "Image upload failed. Please check your connection and try again." });
+      const errorMsg = error.response?.data?.message || "Image upload failed. Please check your connection and try again.";
+      showModal({ title: 'Upload Error', message: errorMsg });
     } finally {
       setUploading(null);
     }
@@ -359,12 +369,20 @@ const AdminProducts = ({ apiBase }) => {
             >
               {formData.image ? (
                 <img 
-                  src={formData.image} 
+                  src={getImageUrl(formData.image)} 
                   alt="preview" 
                   className="preview-img" 
                   onError={(e) => {
-                    if (e.target.src.includes('/thumbnails/')) {
-                      e.target.src = e.target.src.replace('/thumbnails/', '/images/').replace('thumb_', '');
+                    if (e.target.src.includes('rawpixel.com')) {
+                      e.target.onerror = null;
+                      return;
+                    }
+                    const currentSrc = e.target.src;
+                    if (currentSrc.includes('/thumbnails/') && !currentSrc.includes('s3.amazonaws.com')) {
+                      e.target.src = currentSrc.replace('/thumbnails/', '/images/').replace('thumb_', '');
+                    } else {
+                      e.target.src = 'https://images.rawpixel.com/image_png_800/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvbHIvczg0LXRlZC0xNTg3OWEucG5n.png';
+                      e.target.onerror = null;
                     }
                   }}
                 />
@@ -494,12 +512,21 @@ const AdminProducts = ({ apiBase }) => {
                   <td>{product.id}</td>
                   <td className="admin-product-img-td">
                     <img 
-                      src={product.thumbnail || product.image} 
+                      src={getImageUrl(product.thumbnail || product.image) || 'https://images.rawpixel.com/image_png_800/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvbHIvczg0LXRlZC0xNTg3OWEucG5n.png'} 
                       alt="" 
                       className="admin-product-thumb"
                       onError={(e) => {
-                        e.target.src = product.image;
-                        e.target.onerror = null;
+                        if (e.target.src.includes('rawpixel.com')) {
+                          e.target.onerror = null;
+                          return;
+                        }
+                        const original = getImageUrl(product.image);
+                        if (e.target.src !== original && original) {
+                          e.target.src = original;
+                        } else {
+                           e.target.src = 'https://images.rawpixel.com/image_png_800/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvbHIvczg0LXRlZC0xNTg3OWEucG5n.png';
+                           e.target.onerror = null;
+                        }
                       }}
                     />
                   </td>
