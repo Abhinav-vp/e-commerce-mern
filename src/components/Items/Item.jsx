@@ -16,6 +16,7 @@ const Item = (props) => {
             onClick={() => window.scrollTo(0, 0)} 
             src={props.thumbnail || props.image || 'https://images.rawpixel.com/image_png_800/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvbHIvczg0LXRlZC0xNTg3OWEucG5n.png'} 
             alt={props.name} 
+            loading="lazy"
             onError={(e) => {
               if (e.target.src.includes('rawpixel.com')) {
                 e.target.onerror = null;
