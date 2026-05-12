@@ -59,7 +59,7 @@ const AdminProducts = ({ apiBase }) => {
     } finally {
       setLoading(false);
     }
-  }, [apiBase, token, showModal]);
+  }, [apiBase, token, showModal, getImageUrl]);
 
   useEffect(() => {
     fetchProducts();
