@@ -25,6 +25,10 @@ const AdminProducts = ({ apiBase }) => {
   
   const getImageUrl = useCallback((url) => {
     if (!url) return "";
+    // If it's a localhost URL but we are in production, swap it for the apiBase
+    if (url.includes("localhost:7000") || url.includes("localhost:4000")) {
+        return url.replace(/http:\/\/localhost:(7000|4000)/, apiBase);
+    }
     if (url.startsWith("http")) return url;
     const base = apiBase.endsWith("/") ? apiBase.slice(0, -1) : apiBase;
     const path = url.startsWith("/") ? url : `/${url}`;
@@ -43,20 +47,10 @@ const AdminProducts = ({ apiBase }) => {
       // Normalize images and thumbnails
       const normalized = response.data.products.map(product => ({
         ...product,
-        image: product.image 
-          ? (product.image.startsWith('http') ? product.image : `${apiBase}${product.image}`)
-          : product.image,
-        sub_images: Array.from({ length: 4 }, (_, i) => {
-          const url = (product.sub_images && product.sub_images[i]) || '';
-          return url ? (url.startsWith('http') ? url : `${apiBase}${url}`) : '';
-        }),
-        thumbnail: (product.thumbnail && !product.thumbnail.includes("undefined"))
-          ? (product.thumbnail.startsWith('http') ? product.thumbnail : `${apiBase}${product.thumbnail}`)
-          : undefined,
-        sub_thumbnails: Array.from({ length: 4 }, (_, i) => {
-          const url = (product.sub_thumbnails && product.sub_thumbnails[i]) || '';
-          return url ? (url.startsWith('http') ? url : `${apiBase}${url}`) : '';
-        }),
+        image: getImageUrl(product.image),
+        sub_images: (product.sub_images || []).map(url => getImageUrl(url)),
+        thumbnail: getImageUrl(product.thumbnail),
+        sub_thumbnails: (product.sub_thumbnails || []).map(url => getImageUrl(url)),
       }));
       setProducts(normalized);
     } catch (error) {

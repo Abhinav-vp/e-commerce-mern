@@ -17,25 +17,23 @@ const ShopContextProvider = (props) => {
         fetch(`${API_BASE}/api/products`, { signal: AbortSignal.timeout(3000) })
             .then((res) => res.json())
             .then((data) => {
-                const normalized = data.map((product) => ({
-                    ...product,
-                    image: product.image
-                        ? product.image.startsWith("http")
-                            ? product.image
-                            : `${API_BASE}${product.image}`
-                        : product.image,
-                    thumbnail: (product.thumbnail && !product.thumbnail.includes("undefined"))
-                        ? product.thumbnail.startsWith("http")
-                            ? product.thumbnail
-                            : `${API_BASE}${product.thumbnail}`
-                        : undefined,
-                    sub_images: (product.sub_images || []).map(url =>
-                        url ? (url.startsWith("http") ? url : `${API_BASE}${url}`) : url
-                    ),
-                    sub_thumbnails: (product.sub_thumbnails || []).map(url =>
-                        url ? (url.startsWith("http") ? url : `${API_BASE}${url}`) : url
-                    ),
-                }));
+                const normalized = data.map((product) => {
+                    const fallbackReplace = (url) => {
+                        if (!url || !API_BASE) return url;
+                        if (url.includes("localhost:7000") || url.includes("localhost:4000")) {
+                            return url.replace(/http:\/\/localhost:(7000|4000)/, API_BASE);
+                        }
+                        return url;
+                    };
+
+                    return {
+                        ...product,
+                        image: fallbackReplace(product.image),
+                        thumbnail: fallbackReplace(product.thumbnail),
+                        sub_images: (product.sub_images || []).map(url => fallbackReplace(url)),
+                        sub_thumbnails: (product.sub_thumbnails || []).map(url => fallbackReplace(url)),
+                    };
+                });
                 setAllProduct(normalized);
             })
             .catch((err) => {
