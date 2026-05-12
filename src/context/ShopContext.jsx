@@ -3,7 +3,7 @@ import all_product_data from "../components/Assets/Frontend_Assets/all_product";
 
 export const ShopContext = createContext(null);
 
-export const API_BASE = process.env.REACT_APP_API_BASE || `http://${window.location.hostname}:7000`;
+export const API_BASE = process.env.REACT_APP_API_BASE || (window.location.hostname === "localhost" ? "http://localhost:7000" : "");
 
 const ShopContextProvider = (props) => {
     const [all_product, setAllProduct] = useState([]);
