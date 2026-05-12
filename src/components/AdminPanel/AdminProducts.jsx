@@ -25,14 +25,20 @@ const AdminProducts = ({ apiBase }) => {
   
   const getImageUrl = useCallback((url) => {
     if (!url) return "";
-    // If it's a localhost URL but we are in production, swap it for the apiBase
+
+    // 1. Handle localhost replacement
     if (url.includes("localhost:7000") || url.includes("localhost:4000")) {
-        return url.replace(/http:\/\/localhost:(7000|4000)/, apiBase);
+        return url.replace(/http:\/\/localhost:(7000|4000)/, apiBase || "");
     }
-    if (url.startsWith("http")) return url;
-    const base = apiBase.endsWith("/") ? apiBase.slice(0, -1) : apiBase;
-    const path = url.startsWith("/") ? url : `/${url}`;
-    return `${base}${path}`;
+
+    // 2. Prepend apiBase to relative paths
+    if (!url.startsWith("http")) {
+        const base = apiBase.endsWith("/") ? apiBase.slice(0, -1) : apiBase;
+        const path = url.startsWith("/") ? url : `/${url}`;
+        return `${base}${path}`;
+    }
+
+    return url;
   }, [apiBase]);
 
   const token = localStorage.getItem('auth-token');

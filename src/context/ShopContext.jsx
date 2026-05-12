@@ -18,20 +18,25 @@ const ShopContextProvider = (props) => {
             .then((res) => res.json())
             .then((data) => {
                 const normalized = data.map((product) => {
-                    const fallbackReplace = (url) => {
-                        if (!url || !API_BASE) return url;
+                    const normalizeUrl = (url) => {
+                        if (!url) return url;
+                        // 1. Handle localhost replacement
                         if (url.includes("localhost:7000") || url.includes("localhost:4000")) {
-                            return url.replace(/http:\/\/localhost:(7000|4000)/, API_BASE);
+                            return url.replace(/http:\/\/localhost:(7000|4000)/, API_BASE || "");
+                        }
+                        // 2. Prepend API_BASE to relative paths
+                        if (!url.startsWith("http")) {
+                            return `${API_BASE}${url.startsWith("/") ? "" : "/"}${url}`;
                         }
                         return url;
                     };
 
                     return {
                         ...product,
-                        image: fallbackReplace(product.image),
-                        thumbnail: fallbackReplace(product.thumbnail),
-                        sub_images: (product.sub_images || []).map(url => fallbackReplace(url)),
-                        sub_thumbnails: (product.sub_thumbnails || []).map(url => fallbackReplace(url)),
+                        image: normalizeUrl(product.image),
+                        thumbnail: normalizeUrl(product.thumbnail),
+                        sub_images: (product.sub_images || []).map(url => normalizeUrl(url)),
+                        sub_thumbnails: (product.sub_thumbnails || []).map(url => normalizeUrl(url)),
                     };
                 });
                 setAllProduct(normalized);
