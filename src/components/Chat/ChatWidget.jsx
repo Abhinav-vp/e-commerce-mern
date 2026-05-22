@@ -8,6 +8,7 @@ const ChatWidget = () => {
   const [input, setInput] = useState("");
   const [user, setUser] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isTyping, setIsTyping] = useState(false);
   const socketRef = useRef(null);
   const chatEndRef = useRef(null);
 
@@ -91,6 +92,13 @@ const ChatWidget = () => {
           setUnreadCount((prev) => prev + 1);
         }
       });
+
+      socketRef.current.on("aiTyping", (typing) => {
+        setIsTyping(typing);
+        if (typing) {
+          scrollToBottom();
+        }
+      });
     }
   }, [user]); // Re-run when user (and thus socket) changes
 
@@ -124,7 +132,7 @@ const ChatWidget = () => {
       {isOpen ? (
         <div className="chat-window shadow-xl">
           <div className="chat-header">
-            <h3>Live Support</h3>
+            <h3>AI Assistant</h3>
             <button onClick={() => setIsOpen(false)} className="close-btn">
               ×
             </button>
@@ -149,6 +157,15 @@ const ChatWidget = () => {
                 </div>
               </div>
             ))}
+            {isTyping && (
+              <div className="message-bubble admin typing">
+                <div className="typing-dots">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+            )}
             <div ref={chatEndRef} />
           </div>
           <div className="chat-input-area">
