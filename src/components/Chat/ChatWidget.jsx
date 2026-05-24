@@ -100,7 +100,7 @@ const ChatWidget = () => {
         }
       });
     }
-  }, [user]); // Re-run when user (and thus socket) changes
+  }, [user, scrollToBottom]); // Re-run when user (and thus socket) changes
 
   useEffect(() => {
     if (isOpen) {
